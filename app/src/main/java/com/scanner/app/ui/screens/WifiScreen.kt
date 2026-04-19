@@ -87,6 +87,7 @@ fun WifiScreen() {
     var geoTagCount by remember { mutableStateOf(0) }
     var uniqueGeoNetworks by remember { mutableStateOf(0) }
     var filter by remember { mutableStateOf("all") }
+    var selectedNetwork by remember { mutableStateOf<WifiNetwork?>(null) }
 
     val permissions = buildList {
         add(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -144,6 +145,11 @@ fun WifiScreen() {
     val riskCount   = remember(networks) { networks.count { it.isRisk() } }
     val count24     = remember(networks) { networks.count { it.band.contains("2.4") } }
     val count5      = remember(networks) { networks.count { it.band.contains("5") } }
+
+    selectedNetwork?.let { network ->
+        WifiDetailScreen(network = network, onClose = { selectedNetwork = null })
+        return
+    }
 
     Column(Modifier.fillMaxSize().background(Spectrum.Surface)) {
 
@@ -237,7 +243,7 @@ fun WifiScreen() {
             displayed.isEmpty() && hasScanned -> WifiEmptyState(stringResource(R.string.wifi_none_found))
             else -> LazyColumn(Modifier.fillMaxSize()) {
                 items(displayed, key = { it.bssid }) { network ->
-                    WifiRow(network)
+                    WifiRow(network, onClick = { selectedNetwork = network })
                     HairlineHorizontal()
                 }
                 item { Spacer(Modifier.height(24.dp)) }
@@ -354,15 +360,14 @@ private fun WifiEmptyState(message: String) {
 }
 
 @Composable
-private fun WifiRow(network: WifiNetwork) {
-    var expanded by remember { mutableStateOf(false) }
+private fun WifiRow(network: WifiNetwork, onClick: () -> Unit) {
     val risk = network.isRisk()
 
     Column {
         Row(
             Modifier
                 .fillMaxWidth()
-                .clickable { expanded = !expanded }
+                .clickable { onClick() }
                 .background(if (network.isConnected) Spectrum.Accent.copy(alpha = 0.04f) else Spectrum.Surface)
                 .padding(horizontal = 18.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -444,54 +449,5 @@ private fun WifiRow(network: WifiNetwork) {
             }
         }
 
-        if (expanded) {
-            WifiRowDetail(network)
-        }
-    }
-}
-
-@Composable
-private fun WifiRowDetail(network: WifiNetwork) {
-    Column(
-        Modifier
-            .fillMaxWidth()
-            .background(Spectrum.SurfaceRaised)
-            .padding(horizontal = 18.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-    ) {
-        WifiDetailRow("BSSID", network.bssid)
-        WifiDetailRow("KANAL", "${network.channel} (${network.band})")
-        WifiDetailRow("FREQUENZ", "${network.frequency} MHz")
-        network.channelWidth?.let { WifiDetailRow("BREITE", it) }
-        network.wifiStandard?.let { WifiDetailRow("STANDARD", it) }
-        network.vendor?.let { WifiDetailRow("HERSTELLER", it) }
-        WifiDetailRow("SICHERHEIT", network.securityType)
-        WifiDetailRow("WPS", if (network.wpsEnabled) "⚠ AKTIVIERT" else "AUS")
-        network.distance?.let { WifiDetailRow("DISTANZ", "~${"%.1f".format(it)}m") }
-        if (network.isConnected) WifiDetailRow("STATUS", "VERBUNDEN")
-        if (network.rawCapabilities.isNotBlank()) {
-            Spacer(Modifier.height(2.dp))
-            Text(
-                network.rawCapabilities,
-                fontFamily = JetBrainsMonoFamily,
-                fontSize = 9.sp,
-                color = Spectrum.OnSurfaceFaint,
-                lineHeight = 13.sp,
-            )
-        }
-    }
-}
-
-@Composable
-private fun WifiDetailRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, fontFamily = JetBrainsMonoFamily, fontSize = 10.sp, color = Spectrum.OnSurfaceDim)
-        Text(
-            value,
-            fontFamily = JetBrainsMonoFamily,
-            fontSize = 10.sp,
-            color = if (value.startsWith("⚠")) Spectrum.Danger else Spectrum.OnSurface,
-            modifier = Modifier.padding(start = 16.dp),
-        )
     }
 }
