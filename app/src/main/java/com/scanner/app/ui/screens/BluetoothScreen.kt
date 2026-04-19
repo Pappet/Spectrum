@@ -38,6 +38,8 @@ import androidx.compose.material.icons.outlined.Hub
 import androidx.compose.material.icons.outlined.Mouse
 import androidx.compose.material.icons.outlined.Sensors
 import androidx.compose.material.icons.outlined.SmartToy
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Tv
 import androidx.compose.material.icons.outlined.Watch
 import androidx.compose.material3.Icon
@@ -221,8 +223,13 @@ fun BluetoothScreen() {
 
             if (selected != null) {
                 item {
+                    val favEntity by repository.observeDeviceByAddress(selected.address).collectAsState(initial = null)
                     BtSelectedPanel(
                         device = selected,
+                        isFavorite = favEntity?.isFavorite == true,
+                        onToggleFavorite = {
+                            scope.launch { repository.toggleFavoriteByAddress(selected.address) }
+                        },
                         onClose = { selectedAddress = null },
                         onOpenGatt = {
                             gattAddress = selected.address
@@ -400,6 +407,8 @@ private fun BtRadar(
 @Composable
 private fun BtSelectedPanel(
     device: BluetoothDevice,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
     onClose: () -> Unit,
     onOpenGatt: () -> Unit,
 ) {
@@ -438,6 +447,21 @@ private fun BtSelectedPanel(
                     color = Spectrum.OnSurfaceDim,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .size(28.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .border(1.dp, Spectrum.GridLine, RoundedCornerShape(4.dp))
+                    .clickable(onClick = onToggleFavorite),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Outlined.Star else Icons.Outlined.StarOutline,
+                    contentDescription = if (isFavorite) "Aus Favoriten entfernen" else "Als Favorit",
+                    tint = if (isFavorite) Spectrum.Accent else Spectrum.OnSurface,
+                    modifier = Modifier.size(14.dp),
                 )
             }
             Box(

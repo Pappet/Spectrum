@@ -28,6 +28,8 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Lan
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Wifi
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -346,9 +348,14 @@ private fun InvDeviceRow(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    if (device.isFavorite) {
-                        Text("★", color = Spectrum.Accent, fontSize = 11.sp)
-                    }
+                    Icon(
+                        imageVector = if (device.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarOutline,
+                        contentDescription = if (device.isFavorite) "Aus Favoriten entfernen" else "Als Favorit",
+                        tint = if (device.isFavorite) Spectrum.Accent else Spectrum.OnSurfaceFaint,
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable(onClick = onToggleFavorite),
+                    )
                 }
                 device.customLabel?.let { label ->
                     Text(

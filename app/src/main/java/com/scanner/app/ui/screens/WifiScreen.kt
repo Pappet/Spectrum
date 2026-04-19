@@ -30,6 +30,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -147,7 +148,15 @@ fun WifiScreen() {
     val count5      = remember(networks) { networks.count { it.band.contains("5") } }
 
     selectedNetwork?.let { network ->
-        WifiDetailScreen(network = network, onClose = { selectedNetwork = null })
+        val favEntity by repository.observeDeviceByAddress(network.bssid).collectAsState(initial = null)
+        WifiDetailScreen(
+            network = network,
+            isFavorite = favEntity?.isFavorite == true,
+            onClose = { selectedNetwork = null },
+            onToggleFavorite = {
+                scope.launch { repository.toggleFavoriteByAddress(network.bssid) }
+            },
+        )
         return
     }
 
