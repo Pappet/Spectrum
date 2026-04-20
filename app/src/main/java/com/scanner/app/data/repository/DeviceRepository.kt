@@ -198,6 +198,14 @@ class DeviceRepository(context: Context) {
         dao.setFavorite(id, !device.isFavorite)
     }
 
+    suspend fun toggleFavoriteByAddress(address: String) {
+        val device = dao.getDeviceByAddress(address) ?: return
+        dao.setFavorite(device.id, !device.isFavorite)
+    }
+
+    fun observeDeviceByAddress(address: String): Flow<DiscoveredDeviceEntity?> =
+        dao.observeDeviceByAddress(address)
+
     suspend fun setCustomLabel(id: Long, label: String?) =
         dao.setCustomLabel(id, label)
 

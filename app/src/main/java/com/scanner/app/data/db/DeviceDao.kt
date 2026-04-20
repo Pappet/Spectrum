@@ -104,6 +104,9 @@ interface DeviceDao {
     @Query("SELECT * FROM discovered_devices WHERE address = :address LIMIT 1")
     suspend fun getDeviceByAddress(address: String): DiscoveredDeviceEntity?
 
+    @Query("SELECT * FROM discovered_devices WHERE address = :address LIMIT 1")
+    fun observeDeviceByAddress(address: String): Flow<DiscoveredDeviceEntity?>
+
     @Query("""
         SELECT * FROM discovered_devices 
         WHERE name LIKE '%' || :query || '%' 

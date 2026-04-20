@@ -1,81 +1,111 @@
 package com.scanner.app.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
+import com.scanner.app.R
 
-val Teal80 = Color(0xFF80CBC4)
-val Teal40 = Color(0xFF00897B)
-val TealDark = Color(0xFF004D40)
-val Amber80 = Color(0xFFFFE082)
-val Amber40 = Color(0xFFFFA000)
+// ── Spectrum palette ─────────────────────────────────────────
+// Instrument-panel dark. Chartreuse accent. From variant-a.jsx handoff.
+object Spectrum {
+    val Surface = Color(0xFF07090A)
+    val SurfaceRaised = Color(0xFF0E1214)
+    val SurfaceHi = Color(0xFF131719)
+    val Bezel = Color(0xFF111416)
+    val FrameBorder = Color(0xFF1C2225)
+    val GridLine = Color(0xFF1A2023)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Teal80,
-    onPrimary = TealDark,
-    primaryContainer = Color(0xFF005047),
-    onPrimaryContainer = Color(0xFFA7F0E7),
-    secondary = Amber80,
-    onSecondary = Color(0xFF3E2E00),
-    secondaryContainer = Color(0xFF5A4300),
-    onSecondaryContainer = Color(0xFFFFE082),
-    tertiary = Color(0xFFBBC7DB),
-    surface = Color(0xFF121212),
-    surfaceVariant = Color(0xFF1E1E1E),
-    onSurface = Color(0xFFE6E1E5),
-    onSurfaceVariant = Color(0xFFCAC4CF),
-    outline = Color(0xFF948F99),
-    background = Color(0xFF0A0A0A),
+    val OnSurface = Color(0xFFE8EFEC)
+    val OnSurfaceDim = Color(0xFF7C8A86)
+    val OnSurfaceFaint = Color(0xFF3B4543)
+
+    val Accent = Color(0xFFC8FF4F)        // chartreuse — oscilloscope
+    val AccentDim = Color(0xFF5E7A20)
+    val Accent2 = Color(0xFF6ED4FF)       // cyan trace
+    val Success = Color(0xFF7BD88F)
+    val Warning = Color(0xFFFFCB5E)
+    val Danger = Color(0xFFFF7A66)
+
+    // Severity helpers (AUDIT_FINDINGS)
+    val SeverityHigh = Color(0xFFFF9B66)
+    val SeverityLow = Color(0xFF8EC5D9)
+}
+
+val InterFamily = FontFamily(
+    Font(R.font.inter_regular, FontWeight.Normal),
+    Font(R.font.inter_medium, FontWeight.Medium),
+    Font(R.font.inter_semibold, FontWeight.SemiBold),
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Teal40,
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFB2DFDB),
-    onPrimaryContainer = TealDark,
-    secondary = Amber40,
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFFFE082),
-    onSecondaryContainer = Color(0xFF3E2E00),
-    tertiary = Color(0xFF4A6375),
-    surface = Color(0xFFFFFBFF),
-    surfaceVariant = Color(0xFFF5F5F5),
-    onSurface = Color(0xFF1C1B1F),
-    onSurfaceVariant = Color(0xFF49454E),
-    outline = Color(0xFF7A757F),
-    background = Color(0xFFFAFAFA),
+val JetBrainsMonoFamily = FontFamily(
+    Font(R.font.jetbrains_mono_regular, FontWeight.Normal),
+    Font(R.font.jetbrains_mono_medium, FontWeight.Medium),
+)
+
+private val SpectrumColorScheme = darkColorScheme(
+    primary = Spectrum.Accent,
+    onPrimary = Spectrum.Surface,
+    primaryContainer = Spectrum.AccentDim,
+    onPrimaryContainer = Spectrum.Accent,
+    secondary = Spectrum.Accent2,
+    onSecondary = Spectrum.Surface,
+    tertiary = Spectrum.Warning,
+    background = Spectrum.Surface,
+    onBackground = Spectrum.OnSurface,
+    surface = Spectrum.Surface,
+    onSurface = Spectrum.OnSurface,
+    surfaceVariant = Spectrum.SurfaceRaised,
+    onSurfaceVariant = Spectrum.OnSurfaceDim,
+    outline = Spectrum.GridLine,
+    outlineVariant = Spectrum.GridLine,
+    error = Spectrum.Danger,
+    onError = Spectrum.Surface,
+)
+
+private val SpectrumTypography = Typography(
+    displayLarge = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Medium, fontSize = 56.sp, letterSpacing = (-0.04).em),
+    displayMedium = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Medium, fontSize = 38.sp, letterSpacing = (-0.03).em),
+    displaySmall = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Medium, fontSize = 26.sp, letterSpacing = (-0.02).em),
+    headlineMedium = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Medium, fontSize = 22.sp, letterSpacing = (-0.02).em),
+    titleLarge = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Medium, fontSize = 20.sp, letterSpacing = (-0.01).em),
+    titleMedium = TextStyle(fontFamily = InterFamily, fontWeight = FontWeight.Medium, fontSize = 15.sp, letterSpacing = (-0.01).em),
+    bodyLarge = TextStyle(fontFamily = InterFamily, fontWeight = FontWeight.Normal, fontSize = 15.sp),
+    bodyMedium = TextStyle(fontFamily = InterFamily, fontWeight = FontWeight.Normal, fontSize = 13.sp),
+    bodySmall = TextStyle(fontFamily = InterFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp),
+    labelLarge = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, letterSpacing = 0.2.em),
+    labelMedium = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Normal, fontSize = 11.sp, letterSpacing = 0.18.em),
+    labelSmall = TextStyle(fontFamily = JetBrainsMonoFamily, fontWeight = FontWeight.Normal, fontSize = 10.sp, letterSpacing = 0.18.em),
+)
+
+private val SpectrumShapes = Shapes(
+    extraSmall = RoundedCornerShape(2.dp),
+    small = RoundedCornerShape(4.dp),
+    medium = RoundedCornerShape(6.dp),
+    large = RoundedCornerShape(8.dp),
+    extraLarge = RoundedCornerShape(12.dp),
 )
 
 /**
- * Application theme based on Material 3.
- * Supports dynamic color on Android 12+ and respects system dark theme settings.
- *
- * @param darkTheme Whether to use dark or light color scheme.
- * @param dynamicColor Whether to use Material You dynamic colors if available.
- * @param content The Composable content to apply the theme to.
+ * Spectrum theme — instrument-panel dark, monospaced, dense.
+ * Forced dark (no light variant, no dynamic color).
  */
 @Composable
-fun ScannerAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context)
-            else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
+fun ScannerAppTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography(),
-        content = content
+        colorScheme = SpectrumColorScheme,
+        typography = SpectrumTypography,
+        shapes = SpectrumShapes,
+        content = content,
     )
 }

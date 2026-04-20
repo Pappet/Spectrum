@@ -41,4 +41,248 @@
     
     <string name="section_connected">CONNECTED</string>
     <string name="section_in_range">IN RANGE</string>
+
+    <!-- Details & Cards -->
+    <string name="status_connected">Connected</string>
+    <string name="status_bonded">Bonded</string>
+    <string name="wifi_band_channel">%1$s · Channel %2$d</string>
+    <string name="detail_vendor">Vendor</string>
+    <string name="detail_wifi_standard">WiFi Standard</string>
+    <string name="detail_frequency">Frequency</string>
+    <string name="detail_signal_quality">Signal Quality</string>
+    <string name="detail_distance_est">Distance (Est.)</string>
+    <string name="detail_distance_format">approx. %.1f m</string>
+    <string name="detail_security">Security</string>
+    <string name="detail_mac_address">MAC Address</string>
+    <string name="detail_type">Type</string>
+    <string name="detail_device_class">Device Class</string>
+    <string name="detail_device_minor_class">Minor Class</string>
+    <string name="detail_bond_state">Bond State</string>
+    <string name="detail_signal_strength">Signal Strength</string>
+    <string name="detail_services">Services</string>
+    <string name="services_detected">%1$d detected</string>
+    <string name="btn_gatt_explorer">GATT Explorer — Connect &amp; Read Services</string>
+    
+    <!-- Charts & Utils -->
+    <string name="empty_band">No networks in %1$s band</string>
+    <string name="waiting_for_data">Waiting for data...</string>
+    <string name="label_latency">Latency</string>
+    <string name="spectrum_24_ghz">2.4 GHz Spectrum</string>
+    <string name="spectrum_5_ghz">5 GHz Spectrum</string>
+    <string name="quality_excellent">Excellent</string>
+    <string name="quality_very_good">Very Good</string>
+    <string name="quality_good">Good</string>
+    <string name="quality_fair">Fair</string>
+    <string name="quality_poor">Poor</string>
+    <string name="quality_strong">Strong</string>
+
+    <!-- Export Dialog -->
+    <string name="export_package_data">Package data</string>
+    <string name="btn_close">Close</string>
+    <string name="export_desc_csv">semicolon · UTF-8 BOM</string>
+    <string name="export_desc_json">with statistics header</string>
+    <string name="export_desc_pdf">A4 report</string>
+    <string name="export_favorites_only">★ FAVORITES ONLY</string>
+    <string name="export_failed">Export failed: %1$s</string>
+    <string name="export_btn_action">EXPORT %1$d ITEMS · %2$s →</string>
+    <string name="export_share_title">Share Export</string>
+    <string name="export_unknown_error">Unknown Error</string>
+    <!-- Spectrum Components -->
+    <string name="scanner_kicker">SCANNER / %1$s</string>
+
+
+    <!-- Onboarding -->
+    <string name="onboarding_kicker_start">SCANNER / 01</string>
+    <string name="onboarding_title_start">Instrument your airspace.</string>
+    <string name="onboarding_body_start">This app reads the radio around you — WiFi access points, Bluetooth beacons, devices on your local network. Nothing leaves your phone unless you explicitly export.</string>
+    <string name="onboarding_cta_continue">CONTINUE</string>
+
+    <string name="onboarding_kicker_perms">PERMISSIONS / 02</string>
+    <string name="onboarding_title_perms">Grant radio access.</string>
+    <string name="onboarding_perm_wifi_name">Nearby WiFi</string>
+    <string name="onboarding_perm_wifi_desc">Scan and identify APs in range.</string>
+    <string name="onboarding_perm_bt_name">Bluetooth scan</string>
+    <string name="onboarding_perm_bt_desc">Discover classic + BLE devices.</string>
+    <string name="onboarding_perm_loc_name">Location (fine)</string>
+    <string name="onboarding_perm_loc_desc">Required by Android for WiFi/BT. Only used for wardriving when you explicitly enable it.</string>
+    <string name="onboarding_perm_notif_name">Notifications</string>
+    <string name="onboarding_perm_notif_desc">Status when background monitoring runs.</string>
+    <string name="onboarding_cta_grant">GRANT ALL</string>
+
+    <string name="onboarding_kicker_ready">READY / 03</string>
+    <string name="onboarding_title_ready">Calibrated.</string>
+    <string name="onboarding_body_ready">Tap Scan on any tab to begin. Channel analysis and security audit refresh automatically after each pass.</string>
+    <string name="onboarding_cta_enter">ENTER →</string>
+    <string name="btn_back_arrow">← BACK</string>
+
+    <!-- Bluetooth Screen -->
+    <string name="bt_radar_title">Radar</string>
+    <string name="stat_devices">devices</string>
+    <string name="stat_bonded">bonded</string>
+    <string name="bt_perm_required">Bluetooth and Location permissions required</string>
+    <string name="btn_allow">ALLOW</string>
+    <string name="bt_disabled">Bluetooth is disabled</string>
+    <string name="nearby_count">NEARBY · %1$d</string>
+    <string name="empty_bt_scan_prompt">Tap SCAN to find Bluetooth devices.</string>
+    <string name="empty_no_devices">No devices found.</string>
+    <string name="device_with_vendor">%1$s device</string>
+    <string name="unknown_vendor">Unknown</string>
+    <string name="cd_remove_fav">Remove from favorites</string>
+    <string name="cd_add_fav">Add to favorites</string>
+    <string name="cd_favorite">Favorite</string>
+    <string name="btn_explore_gatt">EXPLORE GATT →</string>
+    <string name="empty_no_signal">NO SIGNAL</string>
+
+    <!-- Inventory Screen -->
+    <string name="inventory_catalog">Catalog</string>
+    <string name="btn_export">EXPORT</string>
+    <string name="filter_all">ALL</string>
+    <string name="filter_favs">★ FAVS</string>
+    <string name="inv_search_placeholder">search · name · mac · label</string>
+    <string name="cd_clear">Clear</string>
+    <string name="inv_no_matches_kicker">— NO MATCHES —</string>
+    <string name="inv_no_matches_query">No devices found for \"%1$s\".</string>
+    <string name="inv_no_devices">No devices saved yet.\nStart a WiFi or Bluetooth scan.</string>
+    <string name="inv_times_seen">seen %1$d×</string>
+    <string name="str_edit">Edit</string>
+    <string name="str_delete">Delete</string>
+
+    <!-- Detail Rows -->
+    <string name="detail_address">Address</string>
+    <string name="detail_category">Category</string>
+    <string name="detail_first_seen">First seen</string>
+    <string name="detail_last_seen">Last seen</string>
+    <string name="detail_times_seen">Sightings</string>
+    <string name="detail_last_rssi">Last signal strength</string>
+    <string name="detail_label">Label</string>
+    <string name="detail_notes">Notes</string>
+
+    <string name="kicker_wifi_details">WIFI DETAILS</string>
+    <string name="detail_wifi_std">WiFi Standard</string>
+    <string name="detail_freq">Frequency</string>
+    <string name="detail_channel">Channel</string>
+    <string name="detail_band">Band</string>
+    <string name="detail_distance">Distance (Est.)</string>
+    <string name="val_distance_est">approx. %.1fm</string>
+    <string name="val_enabled">Enabled</string>
+    <string name="detail_altitude">Altitude</string>
+    <string name="detail_status">Status</string>
+    <string name="val_connected">Connected</string>
+
+    <string name="kicker_bt_details">BLUETOOTH DETAILS</string>
+    <string name="detail_bond">Bonding</string>
+    <string name="val_bonded">Bonded</string>
+    <string name="val_bonding">Bonding...</string>
+    <string name="val_not_bonded">Not bonded</string>
+    <string name="kicker_gatt_services">GATT SERVICES · %1$d</string>
+
+    <string name="kicker_lan_details">LAN DETAILS</string>
+    <string name="detail_ip_address">IP address</string>
+    <string name="detail_hostname">Hostname / NetBIOS</string>
+    <string name="detail_latency">Latency</string>
+    <string name="detail_role">Role</string>
+    <string name="val_role_gateway">Gateway / Router</string>
+    <string name="val_role_own">Own device</string>
+    <string name="kicker_services">SERVICES · %1$d</string>
+    <string name="val_service_unknown">Service</string>
+    <string name="kicker_open_ports">OPEN PORTS · %1$d</string>
+    <string name="val_port_service">Port %1$d (%2$s)</string>
+
+    <!-- Dialogs -->
+    <string name="dialog_edit_device">Edit device</string>
+    <string name="label_custom">Custom Label</string>
+    <string name="ph_custom_label">e.g. Printer 2nd floor</string>
+    <string name="label_notes">Notes</string>
+    <string name="ph_custom_notes">Free-text notes...</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+
+    <!-- Time Formatting -->
+    <string name="time_just_now">just now</string>
+    <string name="time_mins_ago">%1$d mins ago</string>
+    <string name="time_hours_ago">%1$d hrs ago</string>
+    <string name="time_days_ago">%1$d days ago</string>
+    <string name="unknown_general">Unknown</string>
+
+    <!-- BleDetailScreen -->
+    <string name="btn_disconnect">Disconnect</string>
+    <string name="val_link">LINK</string>
+    <string name="val_scan">SCAN</string>
+    <string name="val_wait">WAIT</string>
+    <string name="val_fail">FAIL</string>
+    <string name="val_off">OFF</string>
+    <string name="empty_no_services">NO SERVICES</string>
+    <string name="kicker_chars">%1$s · %2$d CHAR</string>
+    <string name="cd_collapse">Collapse</string>
+    <string name="cd_expand">Expand</string>
+    <string name="empty_no_value">— no value —</string>
+    <string name="kicker_descriptors">DESCRIPTORS · %1$d</string>
+
+    <!-- SecurityAuditScreen -->
+    <string name="audit_phase_wifi">Scanning WiFi...</string>
+    <string name="audit_phase_bt">Scanning Bluetooth...</string>
+    <string name="audit_phase_ports">Port scan: %1$s...</string>
+    <string name="audit_phase_report">Generating report...</string>
+    <string name="audit_start">START AUDIT</string>
+    <string name="audit_desc">Checks WiFi · Bluetooth · Gateway ports</string>
+    <string name="kicker_findings">FINDINGS · %1$d</string>
+    <string name="kicker_gateway_ports">GATEWAY PORTS · %1$d</string>
+    <string name="audit_lan_hint">Port scans of individual devices can be found in the LAN tab.</string>
+    <string name="cd_open_browser">Open in browser</string>
+
+    <string name="audit_count_critical">%1$d critical</string>
+    <string name="audit_count_high">%1$d high</string>
+    <string name="audit_count_medium">%1$d medium</string>
+    <string name="audit_count_low">%1$d low</string>
+    <string name="audit_count_info">%1$d info</string>
+    <string name="audit_no_findings">No findings</string>
+
+    <string name="grade_excellent">Excellent protection</string>
+    <string name="grade_good">Good protection</string>
+    <string name="grade_moderate">Moderate risks</string>
+    <string name="grade_high">Multiple risks</string>
+    <string name="grade_critical">Critical risks</string>
+
+    <!-- MapScreen -->
+    <string name="map_subtitle">Geotag</string>
+    <string name="stat_pinned">pinned</string>
+    <string name="stat_points">points</string>
+    <string name="val_on">ON</string>
+    <string name="val_off_upper">OFF</string>
+    <string name="map_scan_point">Scan point · %1$d networks</string>
+    <string name="kicker_no_fixes">NO FIXES · ENABLE GPS</string>
+    <string name="map_empty_desc">Perform a WiFi scan with GPS enabled to geotag networks.</string>
+    <string name="kicker_pinned">PINNED · TAP RING TO CLOSE</string>
+    <string name="map_range_hint">AP is somewhere on the chartreuse ring.</string>
+    <string name="btn_close_upper">CLOSE</string>
+
+    <!-- LanScreen -->
+    <string name="lan_subtitle">Local Net</string>
+    <string name="stat_hosts">hosts</string>
+    <string name="stat_ports">ports</string>
+    <string name="stat_subnet">subnet</string>
+    <string name="lan_progress">%1$s · %2$d found</string>
+    <string name="kicker_no_devices">NO DEVICES</string>
+    <string name="kicker_no_scan">NO SCAN · ARP · PING · MDNS · UPNP</string>
+    <string name="lan_empty_scanned">No devices found.\nAre you connected to WiFi?</string>
+    <string name="lan_empty_unscanned">Tap SCAN to find devices on your local network.</string>
+    <string name="detail_discovered_via">Discovered via</string>
+    <string name="detail_manufacturer">Manufacturer</string>
+    <string name="detail_name">Name</string>
+    <string name="detail_model">Model</string>
+    <string name="detail_description">Description</string>
+    <string name="detail_device_type">Device Type</string>
+    <string name="role_gateway">Gateway</string>
+    <string name="role_this_device">This device</string>
+    <string name="detail_favorite">Favorite</string>
+    <string name="detail_upnp_services">UPnP services</string>
+    <string name="kicker_port_scan_open">PORT SCAN · %1$d OPEN</string>
+    <string name="kicker_port_scan">PORT SCAN</string>
+    <string name="chip_top20">Top 20</string>
+    <string name="chip_top50">Top 50</string>
+    <string name="chip_top200">Top 200</string>
+    <string name="chip_all_ports">All</string>
+    <string name="lan_port_scan_progress">Port %1$d · %2$d%% · %3$d open</string>
+    <string name="lan_no_open_ports">No open ports found.</string>
+    <string name="lan_port_service">%1$s · %2$s</string>
 </resources>

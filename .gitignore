@@ -63,3 +63,12 @@ credentials.json
 apikey.properties
 
 .claude/
+
+# Extracted design handoff (source zip is tracked, extraction is local-only)
+done/
+# Added by code-review-graph
+.code-review-graph/
+.mcp.json
+
+.agents/
+CLAUDE.md

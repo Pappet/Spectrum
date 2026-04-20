@@ -5,22 +5,43 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.Bluetooth
+import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Lan
+import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.MonitorHeart
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
-import com.scanner.app.R
-import com.scanner.app.ui.screens.*
+import com.scanner.app.ui.components.SpectrumBottomNav
+import com.scanner.app.ui.components.SpectrumTab
+import com.scanner.app.ui.screens.BluetoothScreen
+import com.scanner.app.ui.screens.ChannelAnalysisScreen
+import com.scanner.app.ui.screens.InventoryScreen
+import com.scanner.app.ui.screens.LanScreen
+import com.scanner.app.ui.screens.MapScreen
+import com.scanner.app.ui.screens.MonitorScreen
+import com.scanner.app.ui.screens.SecurityAuditScreen
+import com.scanner.app.ui.screens.WifiScreen
 import com.scanner.app.ui.theme.ScannerAppTheme
+import com.scanner.app.ui.theme.Spectrum
 import kotlinx.coroutines.launch
 
 /**
@@ -39,153 +60,84 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * Root Composable that orchestrates the application's navigation and layout.
- * Uses a [HorizontalPager] to switch between main feature screens (WiFi, Bluetooth, LAN, etc.).
- */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+// Tab order matches the Spectrum nav: WIFI, CH, BT, LAN, MON, SEC, MAP, INV.
+private val SpectrumTabs = listOf(
+    SpectrumTab("wifi", Icons.Outlined.Wifi, "WIFI"),
+    SpectrumTab("ch", Icons.Outlined.BarChart, "CH"),
+    SpectrumTab("bt", Icons.Outlined.Bluetooth, "BT"),
+    SpectrumTab("lan", Icons.Outlined.Lan, "LAN"),
+    SpectrumTab("mon", Icons.Outlined.MonitorHeart, "MON"),
+    SpectrumTab("sec", Icons.Outlined.Shield, "SEC"),
+    SpectrumTab("map", Icons.Outlined.Map, "MAP"),
+    SpectrumTab("inv", Icons.Outlined.Inventory2, "INV"),
+)
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ScannerApp() {
-    // 8 pages: 5 in bottom nav + 3 top bar actions (Channel Analysis, Security Audit, Map)
-    val pagerState = rememberPagerState(pageCount = { 8 })
-    val coroutineScope = rememberCoroutineScope()
-    var showExportDialog by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { context.getSharedPreferences("scanner_prefs", android.content.Context.MODE_PRIVATE) }
+    var onboardingComplete by remember { mutableStateOf(prefs.getBoolean("onboarding_complete", false)) }
 
-    val bottomTabs = listOf(
-        TabItem(stringResource(R.string.tab_wlan), Icons.Outlined.Wifi),
-        TabItem(stringResource(R.string.tab_bluetooth), Icons.Outlined.Bluetooth),
-        TabItem(stringResource(R.string.tab_lan), Icons.Outlined.Lan),
-        TabItem(stringResource(R.string.tab_monitor), Icons.Outlined.MonitorHeart),
-        TabItem(stringResource(R.string.tab_inventory), Icons.Outlined.Inventory2)
-    )
+    if (!onboardingComplete) {
+        com.scanner.app.ui.screens.OnboardingScreen(onDone = {
+            prefs.edit().putBoolean("onboarding_complete", true).apply()
+            onboardingComplete = true
+        })
+        return
+    }
 
-    // Export Dialog
-    if (showExportDialog) {
-        com.scanner.app.ui.components.ExportDialog(
-            onDismiss = { showExportDialog = false }
-        )
+    val pagerState = rememberPagerState(pageCount = { SpectrumTabs.size })
+    val scope = rememberCoroutineScope()
+    val selectedKey = remember(pagerState.currentPage) {
+        SpectrumTabs[pagerState.currentPage].key
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.title_network_scanner),
-                        fontWeight = FontWeight.Bold
-                    )
+        containerColor = Spectrum.Surface,
+        bottomBar = {
+            SpectrumBottomNav(
+                tabs = SpectrumTabs,
+                selected = selectedKey,
+                onSelect = { key ->
+                    val idx = SpectrumTabs.indexOfFirst { it.key == key }
+                    if (idx >= 0) scope.launch { pagerState.animateScrollToPage(idx) }
                 },
-                actions = {
-                    // Security Audit action
-                    IconButton(onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(6)
-                        }
-                    }) {
-                        Icon(
-                            Icons.Outlined.Shield,
-                            contentDescription = stringResource(R.string.action_security_audit),
-                            tint = if (pagerState.currentPage == 6)
-                                MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    // Export action
-                    IconButton(onClick = { showExportDialog = true }) {
-                        Icon(
-                            Icons.Outlined.FileDownload,
-                            contentDescription = stringResource(R.string.action_export),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    // Channel Analysis action
-                    IconButton(onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(5)
-                        }
-                    }) {
-                        Icon(
-                            Icons.Outlined.BarChart,
-                            contentDescription = stringResource(R.string.action_channel_analysis),
-                            tint = if (pagerState.currentPage == 5)
-                                MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    // Map action
-                    IconButton(onClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(7)
-                        }
-                    }) {
-                        Icon(
-                            Icons.Outlined.Map,
-                            contentDescription = stringResource(R.string.action_map),
-                            tint = if (pagerState.currentPage == 7)
-                                MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
             )
         },
-        bottomBar = {
-            NavigationBar {
-                bottomTabs.forEachIndexed { index, tab ->
-                    NavigationBarItem(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = tab.icon,
-                                contentDescription = tab.title,
-                                modifier = Modifier.size(22.dp)
-                            )
-                        },
-                        label = {
-                            Text(
-                                tab.title,
-                                fontSize = 10.sp,
-                                maxLines = 1
-                            )
-                        }
-                    )
-                }
-            }
-        }
     ) { padding ->
-        HorizontalPager(
-            state = pagerState,
-            beyondBoundsPageCount = 7,  // Keep all 8 pages alive in memory (pages 0–7)
-            modifier = Modifier
+        Column(
+            Modifier
                 .fillMaxSize()
                 .padding(padding)
-        ) { page ->
-            when (page) {
-                0 -> WifiScreen()
-                1 -> BluetoothScreen()
-                2 -> LanScreen()
-                3 -> MonitorScreen()
-                4 -> InventoryScreen()
-                5 -> ChannelAnalysisScreen()
-                6 -> SecurityAuditScreen()
-                7 -> MapScreen()
+                .background(Spectrum.Surface),
+        ) {
+            HorizontalPager(
+                state = pagerState,
+                beyondBoundsPageCount = 1,
+                modifier = Modifier.fillMaxSize(),
+            ) { page ->
+                // Opaque + clipped: prevents neighboring pages (notably the osmdroid
+                // MapView) from drawing into the visible page during transitions.
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Spectrum.Surface)
+                        .clipToBounds(),
+                ) {
+                    val key = SpectrumTabs[page].key
+                    when (key) {
+                        "wifi" -> WifiScreen()
+                        "ch" -> ChannelAnalysisScreen()
+                        "bt" -> BluetoothScreen()
+                        "lan" -> LanScreen()
+                        "mon" -> MonitorScreen()
+                        "sec" -> SecurityAuditScreen()
+                        "map" -> MapScreen()
+                        "inv" -> InventoryScreen()
+                    }
+                }
             }
         }
     }
 }
-
-/**
- * Represents a navigation target in the [NavigationBar].
- */
-data class TabItem(
-    val title: String,
-    val icon: ImageVector
-)
