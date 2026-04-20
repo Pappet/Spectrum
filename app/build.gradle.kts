@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.scanner.app"
+    namespace = "com.isochron.audit"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.scanner.app"
+        applicationId = "com.isochron.audit"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

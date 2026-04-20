@@ -1,4 +1,4 @@
-package com.scanner.app.ui.components
+package com.isochron.audit.ui.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -29,12 +29,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
-import com.scanner.app.R
+import com.isochron.audit.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
 import kotlin.math.sin
 
 // ── Kicker (uppercase mono label) ────────────────────────────

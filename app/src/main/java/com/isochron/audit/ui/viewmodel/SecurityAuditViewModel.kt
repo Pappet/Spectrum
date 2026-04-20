@@ -1,4 +1,4 @@
-package com.scanner.app.ui.viewmodel
+package com.isochron.audit.ui.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -7,18 +7,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.scanner.app.R
-import com.scanner.app.data.BluetoothDevice
-import com.scanner.app.data.WifiNetwork
-import com.scanner.app.util.BluetoothScanner
-import com.scanner.app.util.PingUtil
-import com.scanner.app.util.PortScanProgress
-import com.scanner.app.util.PortScanResult
-import com.scanner.app.util.PortScanner
-import com.scanner.app.util.SecurityAuditReport
-import com.scanner.app.util.SecurityAuditor
-import com.scanner.app.util.WellKnownPorts
-import com.scanner.app.util.WifiScanner
+import com.isochron.audit.R
+import com.isochron.audit.data.BluetoothDevice
+import com.isochron.audit.data.WifiNetwork
+import com.isochron.audit.util.BluetoothScanner
+import com.isochron.audit.util.PingUtil
+import com.isochron.audit.util.PortScanProgress
+import com.isochron.audit.util.PortScanResult
+import com.isochron.audit.util.PortScanner
+import com.isochron.audit.util.SecurityAuditReport
+import com.isochron.audit.util.SecurityAuditor
+import com.isochron.audit.util.WellKnownPorts
+import com.isochron.audit.util.WifiScanner
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

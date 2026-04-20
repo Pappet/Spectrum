@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.Manifest
 import android.os.Build
@@ -48,20 +48,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.scanner.app.R
-import com.scanner.app.data.WifiNetwork
-import com.scanner.app.ui.components.BlinkingDot
-import com.scanner.app.ui.components.HairlineHorizontal
-import com.scanner.app.ui.components.HeaderStat
-import com.scanner.app.ui.components.SignalTrace
-import com.scanner.app.ui.components.SpectrumFilterChip
-import com.scanner.app.ui.components.SpectrumHeader
-import com.scanner.app.ui.components.SpectrumKicker
-import com.scanner.app.ui.components.SpectrumScanButton
-import com.scanner.app.ui.components.rssiColor
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.ui.viewmodel.WifiViewModel
+import com.isochron.audit.R
+import com.isochron.audit.data.WifiNetwork
+import com.isochron.audit.ui.components.BlinkingDot
+import com.isochron.audit.ui.components.HairlineHorizontal
+import com.isochron.audit.ui.components.HeaderStat
+import com.isochron.audit.ui.components.SignalTrace
+import com.isochron.audit.ui.components.SpectrumFilterChip
+import com.isochron.audit.ui.components.SpectrumHeader
+import com.isochron.audit.ui.components.SpectrumKicker
+import com.isochron.audit.ui.components.SpectrumScanButton
+import com.isochron.audit.ui.components.rssiColor
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.ui.viewmodel.WifiViewModel
 import kotlinx.coroutines.launch
 
 private fun WifiNetwork.isRisk() =

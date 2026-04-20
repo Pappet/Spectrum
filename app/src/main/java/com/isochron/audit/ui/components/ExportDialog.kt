@@ -1,4 +1,4 @@
-package com.scanner.app.ui.components
+package com.isochron.audit.ui.components
 
 import android.content.Context
 import android.content.Intent
@@ -22,17 +22,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.scanner.app.R
+import com.isochron.audit.R
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.scanner.app.data.db.DeviceCategory
-import com.scanner.app.data.repository.DeviceRepository
-import com.scanner.app.ui.theme.InterFamily
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.util.ExportFilter
-import com.scanner.app.util.ExportFormat
-import com.scanner.app.util.ExportManager
+import com.isochron.audit.data.db.DeviceCategory
+import com.isochron.audit.data.repository.DeviceRepository
+import com.isochron.audit.ui.theme.InterFamily
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.util.ExportFilter
+import com.isochron.audit.util.ExportFormat
+import com.isochron.audit.util.ExportManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

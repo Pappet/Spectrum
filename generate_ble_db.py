@@ -8,7 +8,7 @@ Usage:
     python3 generate_ble_db.py
 
 This will overwrite:
-    app/src/main/java/com/scanner/app/util/BleUuidDatabase.kt
+    app/src/main/java/com/isochron/audit/util/BleUuidDatabase.kt
 """
 
 import json
@@ -17,7 +17,7 @@ import sys
 import os
 
 BASE_URL = "https://raw.githubusercontent.com/NordicSemiconductor/bluetooth-numbers-database/master/v1"
-OUTPUT = "app/src/main/java/com/scanner/app/util/BleUuidDatabase.kt"
+OUTPUT = "app/src/main/java/com/isochron/audit/util/BleUuidDatabase.kt"
 
 def fetch_json(name):
     url = f"{BASE_URL}/{name}.json"
@@ -143,7 +143,7 @@ def main():
 
     # Generate Kotlin
     lines = []
-    lines.append('package com.scanner.app.util')
+    lines.append('package com.isochron.audit.util')
     lines.append('')
     lines.append('import java.util.UUID')
     lines.append('')

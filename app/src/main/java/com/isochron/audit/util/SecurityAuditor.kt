@@ -1,8 +1,8 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
-import com.scanner.app.data.WifiNetwork
-import com.scanner.app.data.BluetoothDevice
-import com.scanner.app.data.BondState
+import com.isochron.audit.data.WifiNetwork
+import com.isochron.audit.data.BluetoothDevice
+import com.isochron.audit.data.BondState
 
 /**
  * Represents a specific security vulnerability or observation.
@@ -242,7 +242,7 @@ object SecurityAuditor {
             }
 
             // Classic BT discoverable without bonding
-            if (device.type == com.scanner.app.data.DeviceType.CLASSIC &&
+            if (device.type == com.isochron.audit.data.DeviceType.CLASSIC &&
                 device.bondState == BondState.NOT_BONDED
             ) {
                 findings.add(SecurityFinding(

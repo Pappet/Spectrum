@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.Manifest
 import android.os.Build
@@ -24,13 +24,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.scanner.app.R
+import com.isochron.audit.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.scanner.app.ui.theme.Spectrum
+import com.isochron.audit.ui.theme.Spectrum
 
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.scanner.app.ui.viewmodel.OnboardingViewModel
+import com.isochron.audit.ui.viewmodel.OnboardingViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.scanner.app.data
+package com.isochron.audit.data
 
 /**
  * Generic model for a discovered WiFi network, used by [WifiScanner].

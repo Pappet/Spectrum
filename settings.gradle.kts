@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ScannerApp"
+rootProject.name = "Isochron"
 include(":app")

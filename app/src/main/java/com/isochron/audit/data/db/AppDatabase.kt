@@ -1,4 +1,4 @@
-package com.scanner.app.data.db
+package com.isochron.audit.data.db
 
 import android.content.Context
 import androidx.room.Database
@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 /**
- * Main database for the ScannerApp.
+ * Main database for Isochron.
  * Persists discovered devices, scan sessions, and signal strength history.
  */
 @Database(

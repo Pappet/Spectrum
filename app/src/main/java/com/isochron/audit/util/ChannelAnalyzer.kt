@@ -1,6 +1,6 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
-import com.scanner.app.data.WifiNetwork
+import com.isochron.audit.data.WifiNetwork
 
 /**
  * Represents channel utilization data for a single WiFi channel.

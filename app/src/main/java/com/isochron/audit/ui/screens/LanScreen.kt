@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -49,28 +49,28 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.scanner.app.R
+import com.isochron.audit.R
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.scanner.app.ui.components.HairlineHorizontal
-import com.scanner.app.ui.components.HeaderStat
-import com.scanner.app.ui.components.SpectrumHeader
-import com.scanner.app.ui.components.SpectrumKicker
-import com.scanner.app.ui.components.SpectrumScanButton
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.ui.viewmodel.LanViewModel
-import com.scanner.app.util.LanDevice
-import com.scanner.app.util.LanScanProgress
-import com.scanner.app.util.LanService
-import com.scanner.app.util.MacVendorLookup
-import com.scanner.app.util.PortRisk
-import com.scanner.app.util.PortScanProgress
-import com.scanner.app.util.PortScanResult
-import com.scanner.app.util.WellKnownPorts
+import com.isochron.audit.ui.components.HairlineHorizontal
+import com.isochron.audit.ui.components.HeaderStat
+import com.isochron.audit.ui.components.SpectrumHeader
+import com.isochron.audit.ui.components.SpectrumKicker
+import com.isochron.audit.ui.components.SpectrumScanButton
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.ui.viewmodel.LanViewModel
+import com.isochron.audit.util.LanDevice
+import com.isochron.audit.util.LanScanProgress
+import com.isochron.audit.util.LanService
+import com.isochron.audit.util.MacVendorLookup
+import com.isochron.audit.util.PortRisk
+import com.isochron.audit.util.PortScanProgress
+import com.isochron.audit.util.PortScanResult
+import com.isochron.audit.util.WellKnownPorts
 
 private val WARN_PORTS = setOf(22, 23, 80)
 

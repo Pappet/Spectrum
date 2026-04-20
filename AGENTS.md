@@ -1,4 +1,4 @@
-# AGENTS.md - ScannerApp Development Guide
+# AGENTS.md - Isochron Development Guide
 
 ## Project Overview
 
@@ -63,7 +63,7 @@ If adding tests:
 
 - Unit tests: `app/src/test/java/`
 - Instrumented tests: `app/src/androidTest/java/`
-- Run single test: `./gradlew testDebugUnitTest --tests "com.scanner.app.MyTestClass"`
+- Run single test: `./gradlew testDebugUnitTest --tests "com.isochron.audit.MyTestClass"`
 - Run instrumented test on device: `./gradlew connectedDebugAndroidTest`
 
 ---
@@ -81,7 +81,7 @@ Standard Kotlin import order:
 1. Android framework (`android.*`)
 2. Jetpack Compose (`androidx.compose.*`)
 3. Third-party libraries (`com.google.*`, `org.jetbrains.*`)
-4. Internal app imports (`com.scanner.app.*`)
+4. Internal app imports (`com.isochron.audit.*`)
 5. Standard library (`kotlin.*`, `java.*`)
 
 ### Naming Conventions
@@ -93,7 +93,7 @@ Standard Kotlin import order:
 | Properties/Variables | camelCase | `signalStrength`, `isConnected` |
 | Constants (companion) | UPPER_SNAKE | `TAG`, `SCAN_TIMEOUT_MS` |
 | Enums | PascalCase | `DeviceType.CLASSIC` |
-| Package names | lowercase | `com.scanner.app.data.db` |
+| Package names | lowercase | `com.isochron.audit.data.db` |
 | Compose UI state | `mutableStateOf<T>()` | `var networks by remember { mutableStateOf<List<WifiNetwork>>(emptyList()) }` |
 
 ### Data Classes

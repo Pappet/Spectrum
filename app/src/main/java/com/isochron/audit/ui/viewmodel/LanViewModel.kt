@@ -1,4 +1,4 @@
-package com.scanner.app.ui.viewmodel
+package com.isochron.audit.ui.viewmodel
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -6,15 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.scanner.app.data.repository.DeviceRepository
-import com.scanner.app.util.LanDevice
-import com.scanner.app.util.LanScanProgress
-import com.scanner.app.util.NetworkDiscovery
-import com.scanner.app.util.NetworkInfo
-import com.scanner.app.util.PingUtil
-import com.scanner.app.util.PortScanProgress
-import com.scanner.app.util.PortScanResult
-import com.scanner.app.util.PortScanner
+import com.isochron.audit.data.repository.DeviceRepository
+import com.isochron.audit.util.LanDevice
+import com.isochron.audit.util.LanScanProgress
+import com.isochron.audit.util.NetworkDiscovery
+import com.isochron.audit.util.NetworkInfo
+import com.isochron.audit.util.PingUtil
+import com.isochron.audit.util.PortScanProgress
+import com.isochron.audit.util.PortScanResult
+import com.isochron.audit.util.PortScanner
 import kotlinx.coroutines.launch
 
 class LanViewModel(app: Application) : AndroidViewModel(app) {

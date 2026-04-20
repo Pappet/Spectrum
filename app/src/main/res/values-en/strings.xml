@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ScannerApp</string>
-    <string name="title_network_scanner">Network Scanner</string>
+    <string name="app_name">Isochron</string>
+    <string name="title_network_scanner">Isochron</string>
     
     <!-- MainActivity Tabs -->
     <string name="tab_wlan">WiFi</string>

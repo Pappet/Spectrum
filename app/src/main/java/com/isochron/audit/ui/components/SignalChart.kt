@@ -1,4 +1,4 @@
-package com.scanner.app.ui.components
+package com.isochron.audit.ui.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
@@ -24,8 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
-import com.scanner.app.R
-import com.scanner.app.util.SignalHelper
+import com.isochron.audit.R
+import com.isochron.audit.util.SignalHelper
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

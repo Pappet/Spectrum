@@ -1,4 +1,4 @@
-package com.scanner.app.ui.viewmodel
+package com.isochron.audit.ui.viewmodel
 
 import android.app.Application
 import androidx.compose.runtime.getValue

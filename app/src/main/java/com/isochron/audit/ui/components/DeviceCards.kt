@@ -1,4 +1,4 @@
-package com.scanner.app.ui.components
+package com.isochron.audit.ui.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
@@ -23,10 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.res.stringResource
-import com.scanner.app.R
-import com.scanner.app.data.*
-import com.scanner.app.ui.theme.ScannerAppTheme
-import com.scanner.app.util.SignalHelper
+import com.isochron.audit.R
+import com.isochron.audit.data.*
+import com.isochron.audit.ui.theme.SpectrumTheme
+import com.isochron.audit.util.SignalHelper
 
 /**
  * Animated signal strength indicator using a horizontal bar.
@@ -316,8 +316,8 @@ fun BluetoothDeviceCard(
 
                 // GATT Explorer button for BLE/DUAL devices
                 if (onGattExplore != null &&
-                    (device.type == com.scanner.app.data.DeviceType.BLE ||
-                     device.type == com.scanner.app.data.DeviceType.DUAL)) {
+                    (device.type == com.isochron.audit.data.DeviceType.BLE ||
+                     device.type == com.isochron.audit.data.DeviceType.DUAL)) {
                     Spacer(modifier = Modifier.height(10.dp))
                     HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
                     Spacer(modifier = Modifier.height(10.dp))
@@ -421,7 +421,7 @@ private fun deviceIcon(deviceClass: String?): ImageVector = when (deviceClass) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewWifiNetworkCard() {
-    ScannerAppTheme {
+    SpectrumTheme {
         WifiNetworkCard(
             network = WifiNetwork(
                 ssid = "Home_Network",
@@ -441,7 +441,7 @@ fun PreviewWifiNetworkCard() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewBluetoothDeviceCard() {
-    ScannerAppTheme {
+    SpectrumTheme {
         BluetoothDeviceCard(
             device = BluetoothDevice(
                 address = "AA:BB:CC:DD:EE:FF",
@@ -449,7 +449,7 @@ fun PreviewBluetoothDeviceCard() {
                 rssi = -60,
                 isConnected = true,
                 bondState = BondState.BONDED,
-                type = com.scanner.app.data.DeviceType.CLASSIC,
+                type = com.isochron.audit.data.DeviceType.CLASSIC,
                 deviceClass = "Audio/Video",
                 minorClass = "Headphones"
             )

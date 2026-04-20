@@ -1,8 +1,8 @@
-# ScannerApp - Project Overview
+# Isochron - Project Overview
 
 ## 1. What is it?
 
-**ScannerApp** is a native Android application written in Kotlin that provides advanced network analysis tools. It combines modules for WiFi scanning (including Wardriving GPS tracking), Bluetooth (Classic & BLE) discovery, LAN device identification, and port scanning. It also features specific components for deep spectrum analysis (Channel Analysis) and comprehensive Security Audits.
+**Isochron** (IT Security Audit) is a native Android application written in Kotlin that provides advanced network analysis tools. It combines modules for WiFi scanning (including Wardriving GPS tracking), Bluetooth (Classic & BLE) discovery, LAN device identification, and port scanning. It also features specific components for deep spectrum analysis (Channel Analysis) and comprehensive Security Audits.
 
 ## 2. Project Stats
 

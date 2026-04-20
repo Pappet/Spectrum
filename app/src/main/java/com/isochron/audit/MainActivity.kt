@@ -1,4 +1,4 @@
-package com.scanner.app
+package com.isochron.audit
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -30,18 +30,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.scanner.app.ui.components.SpectrumBottomNav
-import com.scanner.app.ui.components.SpectrumTab
-import com.scanner.app.ui.screens.BluetoothScreen
-import com.scanner.app.ui.screens.ChannelAnalysisScreen
-import com.scanner.app.ui.screens.InventoryScreen
-import com.scanner.app.ui.screens.LanScreen
-import com.scanner.app.ui.screens.MapScreen
-import com.scanner.app.ui.screens.MonitorScreen
-import com.scanner.app.ui.screens.SecurityAuditScreen
-import com.scanner.app.ui.screens.WifiScreen
-import com.scanner.app.ui.theme.ScannerAppTheme
-import com.scanner.app.ui.theme.Spectrum
+import com.isochron.audit.ui.components.SpectrumBottomNav
+import com.isochron.audit.ui.components.SpectrumTab
+import com.isochron.audit.ui.screens.BluetoothScreen
+import com.isochron.audit.ui.screens.ChannelAnalysisScreen
+import com.isochron.audit.ui.screens.InventoryScreen
+import com.isochron.audit.ui.screens.LanScreen
+import com.isochron.audit.ui.screens.MapScreen
+import com.isochron.audit.ui.screens.MonitorScreen
+import com.isochron.audit.ui.screens.SecurityAuditScreen
+import com.isochron.audit.ui.screens.WifiScreen
+import com.isochron.audit.ui.theme.SpectrumTheme
+import com.isochron.audit.ui.theme.Spectrum
 import kotlinx.coroutines.launch
 
 /**
@@ -53,8 +53,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ScannerAppTheme {
-                ScannerApp()
+            SpectrumTheme {
+                IsochronApp()
             }
         }
     }
@@ -74,13 +74,13 @@ private val SpectrumTabs = listOf(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ScannerApp() {
+fun IsochronApp() {
     val context = androidx.compose.ui.platform.LocalContext.current
     val prefs = remember { context.getSharedPreferences("scanner_prefs", android.content.Context.MODE_PRIVATE) }
     var onboardingComplete by remember { mutableStateOf(prefs.getBoolean("onboarding_complete", false)) }
 
     if (!onboardingComplete) {
-        com.scanner.app.ui.screens.OnboardingScreen(onDone = {
+        com.isochron.audit.ui.screens.OnboardingScreen(onDone = {
             prefs.edit().putBoolean("onboarding_complete", true).apply()
             onboardingComplete = true
         })

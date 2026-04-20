@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.Manifest
 import android.os.Build
@@ -19,9 +19,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.scanner.app.ui.viewmodel.SecurityAuditViewModel
+import com.isochron.audit.ui.viewmodel.SecurityAuditViewModel
 import androidx.compose.ui.res.stringResource
-import com.scanner.app.R
+import com.isochron.audit.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,12 +41,12 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.scanner.app.data.BluetoothDevice
-import com.scanner.app.data.WifiNetwork
-import com.scanner.app.ui.components.*
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.util.*
+import com.isochron.audit.data.BluetoothDevice
+import com.isochron.audit.data.WifiNetwork
+import com.isochron.audit.ui.components.*
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

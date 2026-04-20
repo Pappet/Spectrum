@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -45,21 +45,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import com.scanner.app.R
+import com.isochron.audit.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.scanner.app.ui.components.HairlineHorizontal
-import com.scanner.app.ui.theme.InterFamily
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.ui.viewmodel.BluetoothViewModel
-import com.scanner.app.util.BleUuidDatabase
-import com.scanner.app.util.CharacteristicProperty
-import com.scanner.app.util.ConnectionState
-import com.scanner.app.util.GattCharacteristicInfo
-import com.scanner.app.util.GattExplorerState
-import com.scanner.app.util.GattServiceInfo
+import com.isochron.audit.ui.components.HairlineHorizontal
+import com.isochron.audit.ui.theme.InterFamily
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.ui.viewmodel.BluetoothViewModel
+import com.isochron.audit.util.BleUuidDatabase
+import com.isochron.audit.util.CharacteristicProperty
+import com.isochron.audit.util.ConnectionState
+import com.isochron.audit.util.GattCharacteristicInfo
+import com.isochron.audit.util.GattExplorerState
+import com.isochron.audit.util.GattServiceInfo
 
 /**
  * Spectrum-styled GATT explorer. Matches AGatt handoff:

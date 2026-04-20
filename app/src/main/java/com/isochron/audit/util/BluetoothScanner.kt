@@ -1,4 +1,4 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
@@ -15,9 +15,9 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.scanner.app.data.BluetoothDevice
-import com.scanner.app.data.BondState
-import com.scanner.app.data.DeviceType
+import com.isochron.audit.data.BluetoothDevice
+import com.isochron.audit.data.BondState
+import com.isochron.audit.data.DeviceType
 
 /**
  * Utility class for scanning Bluetooth devices (both Classic and Low Energy).

@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -43,16 +43,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import com.scanner.app.R
-import com.scanner.app.BuildConfig
-import com.scanner.app.data.db.DeviceCategory
-import com.scanner.app.ui.components.HairlineHorizontal
-import com.scanner.app.ui.components.HeaderStat
-import com.scanner.app.ui.components.SpectrumHeader
-import com.scanner.app.ui.components.SpectrumKicker
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.ui.viewmodel.MapViewModel
+import com.isochron.audit.R
+import com.isochron.audit.BuildConfig
+import com.isochron.audit.data.db.DeviceCategory
+import com.isochron.audit.ui.components.HairlineHorizontal
+import com.isochron.audit.ui.components.HeaderStat
+import com.isochron.audit.ui.components.SpectrumHeader
+import com.isochron.audit.ui.components.SpectrumKicker
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.ui.viewmodel.MapViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.PI
 import kotlin.math.cos
@@ -323,7 +323,7 @@ private fun SpectrumMapView(
             factory = { ctx ->
                 Configuration.getInstance().apply {
                     userAgentValue =
-                            "ScannerApp/${BuildConfig.VERSION_NAME} (Android; +https://github.com/TODO_REPLACE/ScannerApp)"
+                            "Isochron/${BuildConfig.VERSION_NAME} (Android; +https://github.com/TODO_REPLACE/Isochron)"
                     osmdroidBasePath = ctx.filesDir
                     osmdroidTileCache = ctx.filesDir.resolve("osmdroid/tiles")
                 }
@@ -474,7 +474,7 @@ private fun rebuildOverlays(
 
 // ── Parsing ──────────────────────────────────────────────────
 private fun parseGeoDevice(
-        d: com.scanner.app.data.db.DiscoveredDeviceEntity,
+        d: com.isochron.audit.data.db.DiscoveredDeviceEntity,
 ): GeoDevice? {
     return try {
         if (d.metadata.isNullOrBlank()) return null

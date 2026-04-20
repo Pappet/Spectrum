@@ -1,4 +1,4 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -14,7 +14,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.scanner.app.data.WifiNetwork
+import com.isochron.audit.data.WifiNetwork
 
 /**
  * Utility class for performing WiFi scans and retrieving information about the current connection.

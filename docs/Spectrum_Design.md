@@ -1,6 +1,6 @@
 # Spectrum Design Language Specification
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Core Philosophy:** "The Obsidian Terminal"  
 **Brand Identity:** Technical, Precise, High-Contrast, Tactical
 
@@ -8,39 +8,50 @@
 
 ## 1. Design Vision
 
-Spectrum is a design language built for power users, security professionals, and tech enthusiasts. It prioritizes data clarity and high-contrast legibility within a dark, "low-light" environment. It draws inspiration from radar systems, tactical terminals, and early cyberpunk aesthetics, but refined for modern, high-resolution displays.
+Spectrum is a design language built for power users, security professionals, and tech enthusiasts. It prioritizes data clarity and high-contrast legibility within a dark, "instrument-panel dark" environment. It draws inspiration from radar systems, tactical terminals, and early cyberpunk aesthetics, but refined for modern, high-resolution displays.
 
 ---
 
 ## 2. Color Palette
 
-The Spectrum palette is built on extreme contrast to ensure visibility and a focused "hacker tool" vibe.
+The Spectrum palette is built on extreme contrast to ensure visibility and a focused "hacker tool" vibe, avoiding pure blacks in favor of deep charcoal and bezel tones.
 
-| Layer | Color Name | Hex Code | Purpose |
+| Layer / Element | Internal Name | Hex Code | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Primary Base** | Obsidian Black | `#000000` | Pure background layer for maximum contrast. |
-| **Surface** | Deep Charcoal | `#0E0E0E` | Secondary backgrounds, cards, and navigation bars. |
-| **Accent (Main)** | Neon Sentinel | `#A6FF00` | Primary action color, highlights, and critical data points. |
-| **Secondary** | Cyan Pulse | `#00E0FF` | Information, secondary status, and links. |
-| **Warning** | Amber Alert | `#FFB800` | Security risks, warnings, and medium-priority alerts. |
-| **Error** | Critical Red | `#FF3B30` | Failures, high-risk security threats, and stop actions. |
-| **Borders** | Muted Moss | `#414A34` | Subtle separation of elements at low opacity (15-20%). |
+| **Surface Base** | Surface | `#07090A` | Base background layer. |
+| **Surface Raised** | SurfaceRaised | `#0E1214` | Secondary backgrounds, cards, and elevated containers. |
+| **Surface High** | SurfaceHi | `#131719` | Highest elevation surfaces. |
+| **Bezel** | Bezel | `#111416` | Structural framing and layout boundaries. |
+| **Borders (Frame)** | FrameBorder | `#1C2225` | Distinct borders for layout elements. |
+| **Borders (Grid)** | GridLine | `#1A2023` | Subtle grid lines, hair-lines, and internal dividers. |
+| **Text Primary** | OnSurface | `#E8EFEC` | Main body text and primary data points. |
+| **Text Dimmed** | OnSurfaceDim | `#7C8A86` | Secondary text, kickers, subtitles, and less critical data. |
+| **Text Faint** | OnSurfaceFaint | `#3B4543` | Lowest priority text or disabled states. |
+| **Accent (Main)** | Accent | `#C8FF4F` | Primary chartreuse action color, oscilloscope traces, and active elements. |
+| **Accent Dim** | AccentDim | `#5E7A20` | Subtle accent highlights and borders for unselected/dimmed states. |
+| **Secondary Trace**| Accent2 | `#6ED4FF` | Cyan trace color for secondary information. |
+| **Success** | Success | `#7BD88F` | Positive states and successful operations. |
+| **Warning** | Warning | `#FFCB5E` | Medium-priority alerts, elevated risks, and warnings. |
+| **Error / Danger** | Danger | `#FF7A66` | Failures, high-risk security threats, and stop actions. |
+| **Severity High** | SeverityHigh | `#FF9B66` | Audit finding severity marker (High). |
+| **Severity Low** | SeverityLow | `#8EC5D9` | Audit finding severity marker (Low). |
 
 ---
 
 ## 3. Typography
 
-Spectrum uses modern, wide-tracked sans-serif fonts to maintain a technical, engineered look.
+Spectrum uses a specific blend of modern sans-serif and monospaced fonts to maintain a technical, engineered look.
 
-* **Primary Font:** `Space Grotesk` (Google Fonts)
-* **Monospace Font:** `Roboto Mono` or `Manrope` (for data values and code snippets)
+* **Primary Font:** `Inter`
+* **Monospace Font:** `JetBrains Mono` (Used for data values, labels, kickers, and prominent display text)
 
 ### Type Styles
 
-* **Headlines (H1/H2):** All Caps, tracking: `0.1em`, font-weight: `Bold`.
-* **Labels:** All Caps, font-weight: `Medium`, font-size: `10px - 12px`, tracking: `0.2em`.
-* **Body:** font-weight: `Regular`, line-height: `1.6`.
-* **Data Values:** font-family: `Monospace`, font-weight: `Bold`.
+* **Display/Headlines:** `JetBrains Mono`, font-weight: `Medium`, tracking: `-0.02em` to `-0.04em`.
+* **Titles:** * Large: `JetBrains Mono`, font-weight: `Medium`, tracking `-0.01em`.
+  * Medium: `Inter`, font-weight: `Medium`, tracking `-0.01em`.
+* **Body:** `Inter`, font-weight: `Normal`, size: `12sp - 15sp`.
+* **Labels / Kickers:** `JetBrains Mono`, font-weight: `Normal`, size: `10sp - 12sp`, wide tracking: `0.18em - 0.20em`. All caps for kickers and section labels.
 
 ---
 
@@ -48,31 +59,35 @@ Spectrum uses modern, wide-tracked sans-serif fonts to maintain a technical, eng
 
 ### 4.1. The "Grid System"
 
-Use a subtle background grid (1px lines, 20px-40px spacing) at very low opacity (3-5%) to ground the interface in a technical environment.
+Use a subtle background grid using the `GridLine` (`#1A2023`) color to ground the interface in a technical environment. Hairline horizontal dividers (`1.dp` height) are used to separate major sections.
 
 ### 4.2. Shape & Roundness
 
-* **Buttons/Cards:** Very tight corner radius (`4px` or `2px`). Spectrum is "sharp" and precise, not "soft" and consumer-focused.
-* **Inputs:** Full-width borders or bottom-only borders for a more "terminal" look.
+Spectrum relies on slightly softer structural boundaries than a pure sharp terminal, using predefined radii:
+
+* **Extra Small:** `2.dp` (Inner indicators, tooltips)
+* **Small:** `4.dp`
+* **Medium:** `6.dp` (Cards, filter chips, input containers)
+* **Large:** `8.dp`
+* **Extra Large / Circular:** `12.dp` or `CircleShape` (Buttons, scan indicators)
 
 ### 4.3. Glow & Elevation
 
-* Use `box-shadow` with the `#A6FF00` color at high blur and low opacity to create a "glowing screen" effect for primary buttons and active indicators.
-* Avoid standard drop shadows; use color-matched outer glows instead.
+* Active states are often depicted by filling the component with the `Accent` color and switching the foreground text to `Surface` to maintain contrast.
+* Selected chips and active indicators utilize full-color borders (e.g., `1.dp` border of `Accent`).
 
 ### 4.4. Iconography
 
 * **Style:** Outlined, geometric icons.
-* **Weight:** Consistent 1.5pt or 2pt stroke weight.
 * **Theme:** Radar, signals, nodes, locks, and telemetry.
 
 ---
 
 ## 5. Interaction Principles
 
-* **Instant Feedback:** Transitions should be fast and snappy (150ms-200ms).
-* **State Changes:** Use opacity shifts and subtle scale-downs (98%) for active states.
-* **The "Scan" Effect:** Whenever data is loading, use a sweeping vertical or horizontal line to simulate a radar scan rather than a generic spinner.
+* **Instant Feedback:** State changes update background and text colors immediately for snappy interaction.
+* **The "Scan" Effect:** Whenever data is loading or a scan is active, utilize pulsing elements. For example, a `BlinkingDot` that oscillates alpha transparency (from `0.35f` to `1.0f` over an 800ms linear tween).
+* **Data Traces:** Represent continuous data (like RSSI) using oscilloscope-style sine wave traces with dynamic coloring based on signal strength thresholds.
 
 ---
 
@@ -80,6 +95,6 @@ Use a subtle background grid (1px lines, 20px-40px spacing) at very low opacity 
 
 When coding for Spectrum:
 
-1. **Dark Mode Only:** There is no light mode. Spectrum is obsidian by definition.
-2. **Contrast is King:** Ensure all text passes WCAG AAA contrast ratios against the black background.
-3. **Minimalist Content:** Remove any visual noise. If a line or border doesn't serve a functional data separation purpose, delete it.
+1. **Dark Mode Only:** There is no light mode or dynamic Android coloring. Spectrum is forced dark using the dedicated `SpectrumColorScheme`.
+2. **Contrast is King:** Text must utilize the `OnSurface` hierarchy (`OnSurface`, `OnSurfaceDim`, `OnSurfaceFaint`) against the dark layers.
+3. **Data Colors:** Always use the standard thresholds for data values (e.g., RSSI > -60 is `Accent`, > -75 is `Warning`, else `Danger`).

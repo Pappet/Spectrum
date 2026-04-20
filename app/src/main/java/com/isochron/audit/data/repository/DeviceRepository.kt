@@ -1,11 +1,11 @@
-package com.scanner.app.data.repository
+package com.isochron.audit.data.repository
 
 import android.content.Context
-import com.scanner.app.data.WifiNetwork
-import com.scanner.app.data.BluetoothDevice
-import com.scanner.app.data.DeviceType
-import com.scanner.app.data.db.*
-import com.scanner.app.util.MacVendorLookup
+import com.isochron.audit.data.WifiNetwork
+import com.isochron.audit.data.BluetoothDevice
+import com.isochron.audit.data.DeviceType
+import com.isochron.audit.data.db.*
+import com.isochron.audit.util.MacVendorLookup
 import kotlinx.coroutines.flow.Flow
 import org.json.JSONObject
 import java.time.Instant
@@ -246,7 +246,7 @@ class DeviceRepository(context: Context) {
      * Persists results from a LAN scan (Network Discovery).
      * Enriches metadata with IP, hostnames, UPnP info, and OUI lookups.
      */
-    suspend fun persistLanScan(devices: List<com.scanner.app.util.LanDevice>) {
+    suspend fun persistLanScan(devices: List<com.isochron.audit.util.LanDevice>) {
         dao.insertScanSession(
             ScanSessionEntity(
                 scanType = ScanType.LAN,
@@ -315,7 +315,7 @@ class DeviceRepository(context: Context) {
      */
     suspend fun persistPortScanResults(
         ip: String,
-        results: List<com.scanner.app.util.PortScanResult>
+        results: List<com.isochron.audit.util.PortScanResult>
     ) {
         // Find device by IP in metadata, update with port scan results
         val address = "lan:$ip"

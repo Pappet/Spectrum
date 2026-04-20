@@ -1,4 +1,4 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import org.junit.Assert.*
 import org.junit.Test

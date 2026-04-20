@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.content.ComponentName
 import android.content.Context
@@ -31,12 +31,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.scanner.app.service.MonitoringState
-import com.scanner.app.service.ScanService
-import com.scanner.app.ui.components.*
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.ui.viewmodel.MonitorViewModel
+import com.isochron.audit.service.MonitoringState
+import com.isochron.audit.service.ScanService
+import com.isochron.audit.ui.components.*
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.ui.viewmodel.MonitorViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.time.Instant
 

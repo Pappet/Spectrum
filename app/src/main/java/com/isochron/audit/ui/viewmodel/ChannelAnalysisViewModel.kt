@@ -1,13 +1,13 @@
-package com.scanner.app.ui.viewmodel
+package com.isochron.audit.ui.viewmodel
 
 import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import com.scanner.app.util.ChannelAnalysis
-import com.scanner.app.util.ChannelAnalyzer
-import com.scanner.app.util.WifiScanner
+import com.isochron.audit.util.ChannelAnalysis
+import com.isochron.audit.util.ChannelAnalyzer
+import com.isochron.audit.util.WifiScanner
 
 class ChannelAnalysisViewModel(app: Application) : AndroidViewModel(app) {
     val wifiScanner = WifiScanner(app)

@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.Manifest
 import android.os.Build
@@ -61,7 +61,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import com.scanner.app.R
+import com.isochron.audit.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,18 +71,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.scanner.app.data.BluetoothDevice
-import com.scanner.app.data.BondState
-import com.scanner.app.data.DeviceType
-import com.scanner.app.ui.components.HairlineHorizontal
-import com.scanner.app.ui.components.HeaderStat
-import com.scanner.app.ui.components.SpectrumHeader
-import com.scanner.app.ui.components.SpectrumKicker
-import com.scanner.app.ui.components.rssiColor
-import com.scanner.app.ui.theme.InterFamily
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.ui.viewmodel.BluetoothViewModel
+import com.isochron.audit.data.BluetoothDevice
+import com.isochron.audit.data.BondState
+import com.isochron.audit.data.DeviceType
+import com.isochron.audit.ui.components.HairlineHorizontal
+import com.isochron.audit.ui.components.HeaderStat
+import com.isochron.audit.ui.components.SpectrumHeader
+import com.isochron.audit.ui.components.SpectrumKicker
+import com.isochron.audit.ui.components.rssiColor
+import com.isochron.audit.ui.theme.InterFamily
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.ui.viewmodel.BluetoothViewModel
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -111,7 +111,7 @@ fun BluetoothScreen(vm: BluetoothViewModel = viewModel()) {
 
     LaunchedEffect(gattState.connectionState, vm.gattAddress) {
         val addr = vm.gattAddress
-        if (gattState.connectionState == com.scanner.app.util.ConnectionState.READY && addr != null) {
+        if (gattState.connectionState == com.isochron.audit.util.ConnectionState.READY && addr != null) {
             val json = buildGattJson(gattState)
             vm.persistGattData(addr, json)
         }

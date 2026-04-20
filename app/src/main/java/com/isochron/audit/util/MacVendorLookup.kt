@@ -1,4 +1,4 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 /**
  * OUI (Organizationally Unique Identifier) lookup for MAC address vendor identification.

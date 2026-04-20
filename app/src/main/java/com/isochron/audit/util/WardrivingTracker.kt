@@ -1,4 +1,4 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,7 +8,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
-import com.scanner.app.data.WifiNetwork
+import com.isochron.audit.data.WifiNetwork
 import java.io.File
 import java.io.FileOutputStream
 import java.time.Instant
@@ -171,7 +171,7 @@ class WardrivingTracker(private val context: Context) {
         FileOutputStream(file).bufferedWriter(Charsets.UTF_8).use { writer ->
             // WiGLE header
             writer.write(
-                    "WigleWifi-1.4,appRelease=1.0,model=Android,release=14,device=ScannerApp,display=ScannerApp,board=,brand="
+                    "WigleWifi-1.4,appRelease=1.0,model=Android,release=14,device=Isochron,display=Isochron,board=,brand="
             )
             writer.newLine()
             writer.write(
@@ -221,7 +221,7 @@ class WardrivingTracker(private val context: Context) {
                     """<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Document>
-    <name>Netzwerk-Scanner Wardriving</name>
+    <name>Isochron Wardriving</name>
     <description>Exportiert am ${DateTimeFormatter.ISO_INSTANT.format(Instant.now())}</description>
     
     <Style id="open"><IconStyle><color>ff0000ff</color><scale>0.8</scale></IconStyle></Style>

@@ -1,4 +1,4 @@
-package com.scanner.app.service
+package com.isochron.audit.service
 
 import android.annotation.SuppressLint
 import android.app.Notification
@@ -11,8 +11,8 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.scanner.app.MainActivity
-import com.scanner.app.util.PingUtil
+import com.isochron.audit.MainActivity
+import com.isochron.audit.util.PingUtil
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,8 +48,8 @@ class ScanService : Service() {
         const val NOTIFICATION_ID = 1
         const val MAX_HISTORY_POINTS = 120  // ~20 min at 10s interval
 
-        const val ACTION_START = "com.scanner.app.START_MONITORING"
-        const val ACTION_STOP = "com.scanner.app.STOP_MONITORING"
+        const val ACTION_START = "com.isochron.audit.START_MONITORING"
+        const val ACTION_STOP = "com.isochron.audit.STOP_MONITORING"
         const val EXTRA_INTERVAL = "interval_seconds"
     }
 
@@ -238,7 +238,7 @@ class ScanService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Netzwerk-Scanner")
+            .setContentTitle("Isochron")
             .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_menu_manage)
             .setContentIntent(pendingIntent)

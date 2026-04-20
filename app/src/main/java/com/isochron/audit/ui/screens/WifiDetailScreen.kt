@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -37,11 +37,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.scanner.app.data.WifiNetwork
-import com.scanner.app.ui.components.rssiColor
-import com.scanner.app.ui.theme.InterFamily
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
+import com.isochron.audit.data.WifiNetwork
+import com.isochron.audit.ui.components.rssiColor
+import com.isochron.audit.ui.theme.InterFamily
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
 import kotlin.math.cos
 import kotlin.math.sin
 

@@ -1,7 +1,7 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import androidx.compose.ui.graphics.toArgb
-import com.scanner.app.R
+import com.isochron.audit.R
 import org.junit.Assert.*
 import org.junit.Test
 

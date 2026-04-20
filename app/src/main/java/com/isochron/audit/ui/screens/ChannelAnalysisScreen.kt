@@ -1,4 +1,4 @@
-package com.scanner.app.ui.screens
+package com.isochron.audit.ui.screens
 
 import android.Manifest
 import android.os.Build
@@ -13,7 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.scanner.app.ui.viewmodel.ChannelAnalysisViewModel
+import com.isochron.audit.ui.viewmodel.ChannelAnalysisViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,17 +28,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
-import com.scanner.app.ui.components.HairlineHorizontal
-import com.scanner.app.ui.components.HeaderStat
-import com.scanner.app.ui.components.SpectrumFilterChip
-import com.scanner.app.ui.components.SpectrumHeader
-import com.scanner.app.ui.components.utilColor
-import com.scanner.app.ui.theme.InterFamily
-import com.scanner.app.ui.theme.JetBrainsMonoFamily
-import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.util.ChannelAnalysis
-import com.scanner.app.util.ChannelAnalyzer
-import com.scanner.app.util.WifiScanner
+import com.isochron.audit.ui.components.HairlineHorizontal
+import com.isochron.audit.ui.components.HeaderStat
+import com.isochron.audit.ui.components.SpectrumFilterChip
+import com.isochron.audit.ui.components.SpectrumHeader
+import com.isochron.audit.ui.components.utilColor
+import com.isochron.audit.ui.theme.InterFamily
+import com.isochron.audit.ui.theme.JetBrainsMonoFamily
+import com.isochron.audit.ui.theme.Spectrum
+import com.isochron.audit.util.ChannelAnalysis
+import com.isochron.audit.util.ChannelAnalyzer
+import com.isochron.audit.util.WifiScanner
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

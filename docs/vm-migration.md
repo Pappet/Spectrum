@@ -1,6 +1,6 @@
 # ViewModel Migration
 
-Lifting screen-local state into `com.scanner.app.ui.viewmodel.*ViewModel` (AndroidViewModel) so scan results, selections, and in-flight sessions survive tab/nav changes.
+Lifting screen-local state into `com.isochron.audit.ui.viewmodel.*ViewModel` (AndroidViewModel) so scan results, selections, and in-flight sessions survive tab/nav changes.
 
 ## Problem
 

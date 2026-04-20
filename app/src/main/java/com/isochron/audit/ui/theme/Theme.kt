@@ -1,4 +1,4 @@
-package com.scanner.app.ui.theme
+package com.isochron.audit.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.scanner.app.R
+import com.isochron.audit.R
 
 // ── Spectrum palette ─────────────────────────────────────────
 // Instrument-panel dark. Chartreuse accent. From variant-a.jsx handoff.
@@ -101,7 +101,7 @@ private val SpectrumShapes = Shapes(
  * Forced dark (no light variant, no dynamic color).
  */
 @Composable
-fun ScannerAppTheme(content: @Composable () -> Unit) {
+fun SpectrumTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = SpectrumColorScheme,
         typography = SpectrumTypography,

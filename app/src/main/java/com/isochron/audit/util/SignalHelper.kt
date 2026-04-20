@@ -1,8 +1,8 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import androidx.compose.ui.graphics.Color
 import androidx.annotation.StringRes
-import com.scanner.app.R
+import com.isochron.audit.R
 
 /**
  * Utility for assessing wireless signal strength and providing UI-friendly descriptions and colors.

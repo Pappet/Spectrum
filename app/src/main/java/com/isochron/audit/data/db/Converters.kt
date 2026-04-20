@@ -1,4 +1,4 @@
-package com.scanner.app.data.db
+package com.isochron.audit.data.db
 
 import androidx.room.TypeConverter
 import java.time.Instant

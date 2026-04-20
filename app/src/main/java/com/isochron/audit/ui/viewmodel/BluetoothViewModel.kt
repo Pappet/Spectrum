@@ -1,4 +1,4 @@
-package com.scanner.app.ui.viewmodel
+package com.isochron.audit.ui.viewmodel
 
 import android.app.Application
 import androidx.compose.runtime.getValue
@@ -6,11 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.scanner.app.data.BluetoothDevice
-import com.scanner.app.data.repository.DeviceRepository
-import com.scanner.app.util.BluetoothScanner
-import com.scanner.app.util.GattCharacteristicInfo
-import com.scanner.app.util.GattExplorer
+import com.isochron.audit.data.BluetoothDevice
+import com.isochron.audit.data.repository.DeviceRepository
+import com.isochron.audit.util.BluetoothScanner
+import com.isochron.audit.util.GattCharacteristicInfo
+import com.isochron.audit.util.GattExplorer
 import kotlinx.coroutines.launch
 
 class BluetoothViewModel(app: Application) : AndroidViewModel(app) {

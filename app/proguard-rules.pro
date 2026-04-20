@@ -15,15 +15,15 @@
 
 # ─── App Enums ─────────────────────────────────────────────────────────────────
 # Keep all enum values() and valueOf() — used by Room TypeConverters and JSON parsing.
--keepclassmembers enum com.scanner.app.** {
+-keepclassmembers enum com.isochron.audit.** {
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
 
 # ─── App Data Classes (JSON serialization via JSONObject / metadata field) ─────
 # Models.kt and Entities.kt are accessed by name in repository/DB code.
--keep class com.scanner.app.data.** { *; }
--keep class com.scanner.app.util.WardrivingEntry { *; }
+-keep class com.isochron.audit.data.** { *; }
+-keep class com.isochron.audit.util.WardrivingEntry { *; }
 
 # ─── osmdroid ──────────────────────────────────────────────────────────────────
 # osmdroid loads tile providers and overlay classes by reflection.

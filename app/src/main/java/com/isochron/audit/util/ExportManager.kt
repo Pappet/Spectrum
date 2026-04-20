@@ -1,4 +1,4 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import android.content.Context
 import android.content.Intent
@@ -7,8 +7,8 @@ import android.graphics.Paint
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import androidx.core.content.FileProvider
-import com.scanner.app.data.db.*
-import com.scanner.app.data.repository.DeviceRepository
+import com.isochron.audit.data.db.*
+import com.isochron.audit.data.repository.DeviceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -111,7 +111,7 @@ class ExportManager(private val context: Context) {
             putExtra(Intent.EXTRA_SUBJECT, "Netzwerk-Scan Export")
             putExtra(
                 Intent.EXTRA_TEXT,
-                "Netzwerk-Scanner Export: ${result.deviceCount} Geräte (${result.format.label})"
+                "Isochron Export: ${result.deviceCount} Geräte (${result.format.label})"
             )
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
@@ -261,7 +261,7 @@ class ExportManager(private val context: Context) {
         y = margin
 
         // Title
-        canvas.drawText("Netzwerk-Scanner Bericht", margin, y + 18f, titlePaint)
+        canvas.drawText("Isochron Bericht", margin, y + 18f, titlePaint)
         y += 28f
 
         // Accent line
@@ -359,7 +359,7 @@ class ExportManager(private val context: Context) {
             canvas.drawLine(margin, y, pageWidth - margin, y, linePaint)
             y += 12f
             canvas.drawText(
-                "Generiert von Netzwerk-Scanner App",
+                "Generiert von Isochron",
                 margin, y, smallPaint
             )
         }

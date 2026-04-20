@@ -1,4 +1,4 @@
-package com.scanner.app.util
+package com.isochron.audit.util
 
 import org.junit.Assert.*
 import org.junit.Test
@@ -103,7 +103,7 @@ class ChannelAnalyzerTest {
         channel: Int = 6,
         signalStrength: Int = -65,
         isConnected: Boolean = false
-    ) = com.scanner.app.data.WifiNetwork(
+    ) = com.isochron.audit.data.WifiNetwork(
         ssid = "TestNet",
         bssid = "AA:BB:CC:DD:EE:FF",
         signalStrength = signalStrength,
