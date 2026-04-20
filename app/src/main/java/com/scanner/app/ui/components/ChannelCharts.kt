@@ -21,9 +21,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.scanner.app.R
 import com.scanner.app.util.ChannelInfo
 
 /**
@@ -226,7 +227,7 @@ fun SpectrumView(
 
     Column(modifier = modifier) {
         Text(
-            text = if (band == "2.4 GHz") "2.4 GHz Spektrum" else "5 GHz Spektrum",
+            text = if (band == "2.4 GHz") stringResource(R.string.spectrum_24_ghz) else stringResource(R.string.spectrum_5_ghz),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(bottom = 4.dp)
@@ -242,7 +243,7 @@ fun SpectrumView(
         ) {
             if (allNetworks.isEmpty()) {
                 Text(
-                    text = "Keine Netzwerke im $band-Band",
+                    text = stringResource(R.string.empty_band, band),
                     style = MaterialTheme.typography.bodySmall,
                     color = labelColor,
                     modifier = Modifier.align(Alignment.Center)

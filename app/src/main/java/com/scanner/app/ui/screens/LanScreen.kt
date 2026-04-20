@@ -37,24 +37,24 @@ import androidx.compose.material.icons.outlined.Terminal
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.scanner.app.R
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import com.scanner.app.data.repository.DeviceRepository
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.scanner.app.ui.components.HairlineHorizontal
 import com.scanner.app.ui.components.HeaderStat
 import com.scanner.app.ui.components.SpectrumHeader
@@ -62,90 +62,31 @@ import com.scanner.app.ui.components.SpectrumKicker
 import com.scanner.app.ui.components.SpectrumScanButton
 import com.scanner.app.ui.theme.JetBrainsMonoFamily
 import com.scanner.app.ui.theme.Spectrum
+import com.scanner.app.ui.viewmodel.LanViewModel
 import com.scanner.app.util.LanDevice
 import com.scanner.app.util.LanScanProgress
 import com.scanner.app.util.LanService
 import com.scanner.app.util.MacVendorLookup
-import com.scanner.app.util.NetworkDiscovery
-import com.scanner.app.util.NetworkInfo
-import com.scanner.app.util.PingUtil
 import com.scanner.app.util.PortRisk
 import com.scanner.app.util.PortScanProgress
 import com.scanner.app.util.PortScanResult
-import com.scanner.app.util.PortScanner
 import com.scanner.app.util.WellKnownPorts
-import kotlinx.coroutines.launch
 
 private val WARN_PORTS = setOf(22, 23, 80)
 
 @Composable
-fun LanScreen() {
-    val context = LocalContext.current
-    val discovery = remember { NetworkDiscovery(context) }
-    val pingUtil = remember { PingUtil(context) }
-    val repository = remember { DeviceRepository(context) }
-    val scope = rememberCoroutineScope()
+fun LanScreen(vm: LanViewModel = viewModel()) {
+    val devices = vm.devices
+    val isScanning = vm.isScanning
+    val hasScanned = vm.hasScanned
+    val progress = vm.progress
+    val networkInfo = vm.networkInfo
+    val portScanResults = vm.portScanResults
+    val portScanningIp = vm.portScanningIp
+    val portScanProgress = vm.portScanProgress
 
-    var devices by remember { mutableStateOf<List<LanDevice>>(emptyList()) }
-    var isScanning by remember { mutableStateOf(false) }
-    var hasScanned by remember { mutableStateOf(false) }
-    var progress by remember { mutableStateOf<LanScanProgress?>(null) }
-    var networkInfo by remember { mutableStateOf<NetworkInfo?>(null) }
-    var portScanResults by remember { mutableStateOf<Map<String, List<PortScanResult>>>(emptyMap()) }
-    var portScanningIp by remember { mutableStateOf<String?>(null) }
-    var portScanProgress by remember { mutableStateOf<PortScanProgress?>(null) }
-
-    val favorites by repository.observeFavorites().collectAsState(initial = emptyList())
+    val favorites by vm.repository.observeFavorites().collectAsState(initial = emptyList())
     val favoriteAddresses = favorites.map { it.address }.toSet()
-
-    val portScanner = remember { PortScanner() }
-
-    DisposableEffect(Unit) { onDispose { discovery.stopScan() } }
-
-    fun doScan() {
-        isScanning = true
-        try { networkInfo = pingUtil.getNetworkInfo() } catch (e: Exception) {
-            android.util.Log.e("LanScreen", "Error getting network info", e)
-        }
-        scope.launch {
-            try {
-                val result = discovery.fullScan(
-                    onProgress = { try { progress = it } catch (_: Exception) {} },
-                    onDeviceFound = { try { devices = it } catch (_: Exception) {} },
-                )
-                devices = result
-                try { repository.persistLanScan(result) } catch (e: Exception) {
-                    android.util.Log.e("LanScreen", "Error persisting LAN scan", e)
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("LanScreen", "Error in LAN scan", e)
-            } finally {
-                isScanning = false
-                hasScanned = true
-                progress = null
-            }
-        }
-    }
-
-    fun startPortScan(ip: String, ports: List<Int>) {
-        portScanningIp = ip
-        scope.launch {
-            try {
-                val results = portScanner.scan(
-                    ip = ip,
-                    ports = ports,
-                    grabBanners = true,
-                    onProgress = { portScanProgress = it },
-                )
-                portScanResults = portScanResults + (ip to results)
-                try { repository.persistPortScanResults(ip, results) } catch (_: Exception) {}
-            } catch (e: Exception) {
-                android.util.Log.e("LanScreen", "Port scan error", e)
-            }
-            portScanningIp = null
-            portScanProgress = null
-        }
-    }
 
     val totalOpenPorts = portScanResults.values.sumOf { it.size }
     val subnet = networkInfo?.deviceIp
@@ -155,14 +96,14 @@ fun LanScreen() {
     Column(Modifier.fillMaxSize().background(Spectrum.Surface)) {
         SpectrumHeader(
             kicker = "LAN",
-            subtitle = "Local Net",
+            subtitle = stringResource(R.string.lan_subtitle),
             stats = listOf(
-                HeaderStat(devices.size.toString(), "hosts"),
-                HeaderStat(if (totalOpenPorts > 0) totalOpenPorts.toString() else "—", "ports"),
-                HeaderStat(subnet, "subnet"),
+                HeaderStat(devices.size.toString(), stringResource(R.string.stat_hosts)),
+                HeaderStat(if (totalOpenPorts > 0) totalOpenPorts.toString() else "—", stringResource(R.string.stat_ports)),
+                HeaderStat(subnet, stringResource(R.string.stat_subnet)),
             ),
             trailing = {
-                SpectrumScanButton(scanning = isScanning, onClick = { if (!isScanning) doScan() })
+                SpectrumScanButton(scanning = isScanning, onClick = { vm.scan() })
             },
         )
 
@@ -184,8 +125,8 @@ fun LanScreen() {
                         isPortScanning = portScanningIp == device.ip,
                         portProgress = if (portScanningIp == device.ip) portScanProgress else null,
                         isFavorite = isFavorite,
-                        onToggleFavorite = { scope.launch { repository.toggleFavoriteByAddress(address) } },
-                        onPortScan = { ports -> startPortScan(device.ip, ports) },
+                        onToggleFavorite = { vm.toggleFavorite(address) },
+                        onPortScan = { ports -> vm.startPortScan(device.ip, ports) },
                     )
                     HairlineHorizontal()
                 }
@@ -209,7 +150,7 @@ private fun LanProgressBar(progress: LanScanProgress) {
         }
         Spacer(Modifier.height(4.dp))
         Text(
-            "${progress.phase} · ${progress.devicesFound} gefunden",
+            stringResource(R.string.lan_progress, progress.phase, progress.devicesFound),
             fontFamily = JetBrainsMonoFamily,
             fontSize = 10.sp,
             color = Spectrum.OnSurfaceDim,
@@ -226,14 +167,14 @@ private fun LanEmptyState(hasScanned: Boolean) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             SpectrumKicker(
-                if (hasScanned) "KEINE GERÄTE" else "KEIN SCAN · ARP · PING · MDNS · UPNP",
+                if (hasScanned) stringResource(R.string.kicker_no_devices) else stringResource(R.string.kicker_no_scan),
                 color = Spectrum.OnSurfaceDim,
             )
             Text(
                 if (hasScanned)
-                    "Keine Geräte gefunden.\nBist du mit einem WLAN verbunden?"
+                    stringResource(R.string.lan_empty_scanned)
                 else
-                    "Tippe auf SCAN um Geräte im lokalen Netzwerk zu finden.",
+                    stringResource(R.string.lan_empty_unscanned),
                 color = Spectrum.OnSurfaceDim,
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 12.sp,
@@ -305,13 +246,24 @@ private fun LanDeviceRow(
 
             // IP + name/vendor meta
             Column(Modifier.weight(1f)) {
-                Text(
-                    text = device.ip,
-                    fontFamily = JetBrainsMonoFamily,
-                    fontSize = 14.sp,
-                    color = Spectrum.OnSurface,
-                    maxLines = 1,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (isFavorite) {
+                        Icon(
+                            imageVector = Icons.Outlined.Star,
+                            contentDescription = stringResource(R.string.cd_favorite),
+                            tint = Spectrum.Accent,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                    Text(
+                        text = device.ip,
+                        fontFamily = JetBrainsMonoFamily,
+                        fontSize = 14.sp,
+                        color = Spectrum.OnSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 val meta = buildString {
                     append(device.hostname ?: device.vendor ?: "—")
                     if (device.hostname != null && device.vendor != null) {
@@ -330,15 +282,6 @@ private fun LanDeviceRow(
 
             // Port chips: first 4, then overflow count
             Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.CenterVertically) {
-                if (isFavorite) {
-                    Icon(
-                        imageVector = Icons.Outlined.Star,
-                        contentDescription = "Favorit",
-                        tint = Spectrum.Accent,
-                        modifier = Modifier.size(12.dp)
-                    )
-                    Spacer(Modifier.width(2.dp))
-                }
                 displayPorts.take(4).forEach { port -> LanPortChip(port) }
                 if (displayPorts.size > 4) {
                     Text(
@@ -408,20 +351,20 @@ private fun LanDeviceDetail(
     ) {
         device.mac?.let { LanDetailRow("MAC", it) }
         device.mac?.let { mac ->
-            MacVendorLookup.lookup(mac)?.let { LanDetailRow("Hersteller", it) }
+            MacVendorLookup.lookup(mac)?.let { LanDetailRow(stringResource(R.string.detail_manufacturer), it) }
         }
-        device.hostname?.let { LanDetailRow("Hostname", it) }
-        LanDetailRow("Entdeckt via", device.discoveredVia.displayName())
-        device.latencyMs?.let { LanDetailRow("Latenz", "${"%.1f".format(it)} ms") }
-        if (device.isGateway) LanDetailRow("Rolle", "Gateway")
-        if (device.isOwnDevice) LanDetailRow("Rolle", "Dieses Gerät")
+        device.hostname?.let { LanDetailRow(stringResource(R.string.detail_hostname), it) }
+        LanDetailRow(stringResource(R.string.detail_discovered_via), device.discoveredVia.displayName())
+        device.latencyMs?.let { LanDetailRow(stringResource(R.string.detail_latency), "${"%.1f".format(it)} ms") }
+        if (device.isGateway) LanDetailRow(stringResource(R.string.detail_role), stringResource(R.string.role_gateway))
+        if (device.isOwnDevice) LanDetailRow(stringResource(R.string.detail_role), stringResource(R.string.role_this_device))
 
         Row(
             Modifier.fillMaxWidth().padding(top = 2.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Favorit", fontFamily = JetBrainsMonoFamily, fontSize = 10.sp, color = Spectrum.OnSurfaceDim)
+            Text(stringResource(R.string.detail_favorite), fontFamily = JetBrainsMonoFamily, fontSize = 10.sp, color = Spectrum.OnSurfaceDim)
             Box(
                 modifier = Modifier
                     .size(24.dp)
@@ -432,7 +375,7 @@ private fun LanDeviceDetail(
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Outlined.Star else Icons.Outlined.StarOutline,
-                    contentDescription = "Favorit",
+                    contentDescription = stringResource(R.string.cd_favorite),
                     tint = if (isFavorite) Spectrum.Accent else Spectrum.OnSurface,
                     modifier = Modifier.size(14.dp),
                 )
@@ -441,7 +384,7 @@ private fun LanDeviceDetail(
 
         if (device.services.isNotEmpty()) {
             Spacer(Modifier.height(4.dp))
-            SpectrumKicker("DIENSTE (mDNS) · ${device.services.size}", color = Spectrum.OnSurfaceDim)
+            SpectrumKicker(stringResource(R.string.kicker_services, device.services.size), color = Spectrum.OnSurfaceDim)
             Spacer(Modifier.height(4.dp))
             device.services.forEach { LanServiceRow(it) }
         }
@@ -450,13 +393,13 @@ private fun LanDeviceDetail(
             Spacer(Modifier.height(4.dp))
             SpectrumKicker("UPNP", color = Spectrum.Accent2)
             Spacer(Modifier.height(4.dp))
-            upnp.friendlyName?.let { LanDetailRow("Name", it) }
-            upnp.manufacturer?.let { LanDetailRow("Hersteller", it) }
-            upnp.modelName?.let { LanDetailRow("Modell", it) }
-            upnp.modelDescription?.let { LanDetailRow("Beschreibung", it) }
-            upnp.deviceType?.let { LanDetailRow("Gerätetyp", it) }
+            upnp.friendlyName?.let { LanDetailRow(stringResource(R.string.detail_name), it) }
+            upnp.manufacturer?.let { LanDetailRow(stringResource(R.string.detail_manufacturer), it) }
+            upnp.modelName?.let { LanDetailRow(stringResource(R.string.detail_model), it) }
+            upnp.modelDescription?.let { LanDetailRow(stringResource(R.string.detail_description), it) }
+            upnp.deviceType?.let { LanDetailRow(stringResource(R.string.detail_device_type), it) }
             if (upnp.services.isNotEmpty()) {
-                LanDetailRow("UPnP-Dienste", upnp.services.joinToString(", "))
+                LanDetailRow(stringResource(R.string.detail_upnp_services), upnp.services.joinToString(", "))
             }
         }
 
@@ -465,21 +408,21 @@ private fun LanDeviceDetail(
         Spacer(Modifier.height(8.dp))
 
         SpectrumKicker(
-            text = if (hasBeenPortScanned) "PORT-SCAN · ${portResults.size} OFFEN" else "PORT-SCAN",
+            text = if (hasBeenPortScanned) stringResource(R.string.kicker_port_scan_open, portResults.size) else stringResource(R.string.kicker_port_scan),
             color = Spectrum.OnSurfaceDim,
         )
         Spacer(Modifier.height(6.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             listOf(
-                "Top 20" to WellKnownPorts.QUICK_20,
-                "Top 50" to WellKnownPorts.TOP_50,
-                "Top 200" to WellKnownPorts.TOP_200,
-                "Alle" to WellKnownPorts.ALL_PORTS,
+                stringResource(R.string.chip_top20) to WellKnownPorts.QUICK_20,
+                stringResource(R.string.chip_top50) to WellKnownPorts.TOP_50,
+                stringResource(R.string.chip_top200) to WellKnownPorts.TOP_200,
+                stringResource(R.string.chip_all_ports) to WellKnownPorts.ALL_PORTS,
             ).forEach { (label, ports) ->
                 LanActionChip(
                     label = label,
                     enabled = !isPortScanning,
-                    danger = label == "Alle",
+                    danger = label == stringResource(R.string.chip_all_ports),
                     onClick = { onPortScan(ports) },
                     modifier = Modifier.weight(1f),
                 )
@@ -494,7 +437,7 @@ private fun LanDeviceDetail(
             }
             Spacer(Modifier.height(3.dp))
             Text(
-                "Port ${portProgress.currentPort} · ${(pct * 100).toInt()}% · ${portProgress.openPorts} offen",
+                stringResource(R.string.lan_port_scan_progress, portProgress.currentPort, (pct * 100).toInt(), portProgress.openPorts),
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 9.sp,
                 color = Spectrum.OnSurfaceDim,
@@ -507,7 +450,7 @@ private fun LanDeviceDetail(
         } else if (hasBeenPortScanned) {
             Spacer(Modifier.height(2.dp))
             Text(
-                "Keine offenen Ports gefunden.",
+                stringResource(R.string.lan_no_open_ports),
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 10.sp,
                 color = Spectrum.OnSurfaceDim,
@@ -629,7 +572,7 @@ private fun LanOpenPortRow(port: PortScanResult) {
         )
         Column(Modifier.weight(1f)) {
             Text(
-                "${port.serviceName} · ${WellKnownPorts.riskLevel(port.port).label}",
+                stringResource(R.string.lan_port_service, port.serviceName ?: "", WellKnownPorts.riskLevel(port.port).label),
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 10.sp,
                 color = Spectrum.OnSurface,

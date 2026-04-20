@@ -38,19 +38,22 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.scanner.app.R
 import com.scanner.app.BuildConfig
 import com.scanner.app.data.db.DeviceCategory
-import com.scanner.app.data.repository.DeviceRepository
 import com.scanner.app.ui.components.HairlineHorizontal
 import com.scanner.app.ui.components.HeaderStat
 import com.scanner.app.ui.components.SpectrumHeader
 import com.scanner.app.ui.components.SpectrumKicker
 import com.scanner.app.ui.theme.JetBrainsMonoFamily
 import com.scanner.app.ui.theme.Spectrum
+import com.scanner.app.ui.viewmodel.MapViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -239,9 +242,9 @@ private val DarkTilesFilter: ColorMatrixColorFilter by lazy {
 
 // ── Main screen ──────────────────────────────────────────────
 @Composable
-fun MapScreen() {
+fun MapScreen(vm: MapViewModel = viewModel()) {
     val context = LocalContext.current
-    val repository = remember { DeviceRepository(context) }
+    val repository = vm.repository
 
     val devices by
             repository
@@ -258,7 +261,7 @@ fun MapScreen() {
                 }
             }
 
-    var selectedBssid by remember { mutableStateOf<String?>(null) }
+    val selectedBssid = vm.selectedBssid
     val selected =
             remember(devices, selectedBssid) { devices.firstOrNull { it.bssid == selectedBssid } }
 
@@ -268,12 +271,12 @@ fun MapScreen() {
     Column(Modifier.fillMaxSize().background(Spectrum.Surface)) {
         SpectrumHeader(
                 kicker = "WARDRIVING",
-                subtitle = "Geotag",
+                subtitle = stringResource(R.string.map_subtitle),
                 stats =
                         listOf(
-                                HeaderStat(totalDevices.toString(), "pinned"),
-                                HeaderStat(pointCount.toString(), "points"),
-                                HeaderStat(if (totalDevices > 0) "ON" else "OFF", "gps"),
+                                HeaderStat(totalDevices.toString(), stringResource(R.string.stat_pinned)),
+                                HeaderStat(pointCount.toString(), stringResource(R.string.stat_points)),
+                                HeaderStat(if (totalDevices > 0) stringResource(R.string.val_on) else stringResource(R.string.val_off_upper), "gps"),
                         ),
         )
 
@@ -286,7 +289,7 @@ fun MapScreen() {
                 SpectrumMapView(
                         scanPoints = scanPoints,
                         selectedBssid = selectedBssid,
-                        onSelect = { selectedBssid = it },
+                        onSelect = { vm.selectedBssid = it },
                 )
                 MapLegendOverlay(
                         modifier = Modifier.align(Alignment.TopStart).padding(14.dp),
@@ -294,7 +297,7 @@ fun MapScreen() {
                 selected?.let { sel ->
                     MapDetailPanel(
                             device = sel,
-                            onClose = { selectedBssid = null },
+                            onClose = { vm.selectedBssid = null },
                             modifier =
                                     Modifier.align(Alignment.BottomCenter)
                                             .padding(14.dp)
@@ -404,7 +407,7 @@ private fun rebuildOverlays(
                         true
                     }
                     isDraggable = false
-                    title = "Scan point · ${sp.devices.size} networks"
+                    title = map.context.getString(R.string.map_scan_point, sp.devices.size)
                 }
         map.overlays.add(centerMarker)
 
@@ -503,9 +506,9 @@ private fun MapEmptyState() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            SpectrumKicker("NO FIXES · ENABLE GPS", color = Spectrum.Accent)
+            SpectrumKicker(stringResource(R.string.kicker_no_fixes), color = Spectrum.Accent)
             Text(
-                    "Führe einen WLAN-Scan mit aktiviertem GPS durch, um Netzwerke zu geotaggen.",
+                    stringResource(R.string.map_empty_desc),
                     color = Spectrum.OnSurfaceDim,
                     fontSize = 13.sp,
                     textAlign = TextAlign.Center,
@@ -561,7 +564,7 @@ private fun MapDetailPanel(
     ) {
         Row(verticalAlignment = Alignment.Top) {
             Column(Modifier.fillMaxWidth().padding(end = 24.dp)) {
-                SpectrumKicker("PINNED · TAP RING TO CLOSE")
+                SpectrumKicker(stringResource(R.string.kicker_pinned))
                 Spacer(Modifier.height(4.dp))
                 Text(
                         device.name.ifBlank { "WLAN" },
@@ -587,7 +590,7 @@ private fun MapDetailPanel(
         if (hasRange) {
             Spacer(Modifier.height(8.dp))
             Text(
-                    "AP is somewhere on the chartreuse ring.",
+                    stringResource(R.string.map_range_hint),
                     color = Spectrum.OnSurfaceDim,
                     fontFamily = JetBrainsMonoFamily,
                     fontSize = 10.sp,
@@ -603,7 +606,7 @@ private fun MapDetailPanel(
                         .clickable { onClose() },
         ) {
             Text(
-                    "CLOSE",
+                    stringResource(R.string.btn_close_upper),
                     color = Spectrum.OnSurfaceDim,
                     fontFamily = JetBrainsMonoFamily,
                     fontSize = 10.sp,

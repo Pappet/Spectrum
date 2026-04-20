@@ -26,8 +26,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
+import com.scanner.app.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -88,7 +90,7 @@ fun SpectrumHeader(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Column(Modifier.weight(1f)) {
-                    SpectrumKicker("SCANNER / ${kicker.uppercase()}")
+                    SpectrumKicker(stringResource(R.string.scanner_kicker, kicker.uppercase()))
                     Spacer(Modifier.height(2.dp))
                     Text(
                         subtitle,
@@ -140,8 +142,9 @@ fun SpectrumScanButton(
     scanning: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    label: String = if (scanning) "SCANNING" else "SCAN",
+    label: String? = null,
 ) {
+    val displayLabel = label ?: if (scanning) stringResource(R.string.btn_scanning) else stringResource(R.string.btn_scan)
     val bg = if (scanning) Spectrum.Accent else Color.Transparent
     val fg = if (scanning) Spectrum.Surface else Spectrum.Accent
     val borderColor = if (scanning) Spectrum.Accent else Spectrum.AccentDim
@@ -158,7 +161,7 @@ fun SpectrumScanButton(
     ) {
         BlinkingDot(color = fg, blink = scanning, size = 7.dp)
         Text(
-            label,
+            displayLabel,
             color = fg,
             fontFamily = JetBrainsMonoFamily,
             fontSize = 11.sp,

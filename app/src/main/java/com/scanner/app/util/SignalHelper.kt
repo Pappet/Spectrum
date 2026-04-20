@@ -1,6 +1,8 @@
 package com.scanner.app.util
 
 import androidx.compose.ui.graphics.Color
+import androidx.annotation.StringRes
+import com.scanner.app.R
 
 /**
  * Utility for assessing wireless signal strength and providing UI-friendly descriptions and colors.
@@ -10,12 +12,13 @@ object SignalHelper {
     /**
      * Maps a WiFi signal strength (dBm) to a localized quality description.
      */
-    fun wifiQuality(dbm: Int): String = when {
-        dbm >= -50 -> "Exzellent"
-        dbm >= -60 -> "Sehr gut"
-        dbm >= -70 -> "Gut"
-        dbm >= -80 -> "Mittel"
-        else -> "Schwach"
+    @StringRes
+    fun wifiQualityResId(dbm: Int): Int = when {
+        dbm >= -50 -> R.string.quality_excellent
+        dbm >= -60 -> R.string.quality_very_good
+        dbm >= -70 -> R.string.quality_good
+        dbm >= -80 -> R.string.quality_fair
+        else -> R.string.quality_poor
     }
 
     /**
@@ -42,9 +45,10 @@ object SignalHelper {
     /**
      * Maps a Bluetooth RSSI value to a localized quality description.
      */
-    fun bluetoothQuality(rssi: Int): String = when {
-        rssi >= -60 -> "Stark"
-        rssi >= -80 -> "Mittel"
-        else -> "Schwach"
+    @StringRes
+    fun bluetoothQualityResId(rssi: Int): Int = when {
+        rssi >= -60 -> R.string.quality_strong
+        rssi >= -80 -> R.string.quality_fair
+        else -> R.string.quality_poor
     }
 }

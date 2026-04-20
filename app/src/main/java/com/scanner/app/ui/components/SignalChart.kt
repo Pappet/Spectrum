@@ -23,6 +23,8 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.scanner.app.R
 import com.scanner.app.util.SignalHelper
 import java.time.Instant
 import java.time.ZoneId
@@ -92,7 +94,7 @@ fun SignalChart(
         ) {
             if (dataPoints.isEmpty()) {
                 Text(
-                    text = "Warte auf Daten...",
+                    text = stringResource(R.string.waiting_for_data),
                     style = MaterialTheme.typography.bodySmall,
                     color = labelColor,
                     modifier = Modifier.align(Alignment.Center)
@@ -263,8 +265,9 @@ fun SignalChart(
 fun LatencyChart(
     dataPoints: List<Pair<Float, Instant>>,  // latencyMs, timestamp
     modifier: Modifier = Modifier,
-    label: String = "Latenz"
+    label: String? = null
 ) {
+    val displayLabel = label ?: stringResource(R.string.label_latency)
     val textMeasurer = rememberTextMeasurer()
     val lineColor = MaterialTheme.colorScheme.secondary
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f)
@@ -277,7 +280,7 @@ fun LatencyChart(
 
     Column(modifier = modifier) {
         Text(
-            text = label,
+            text = displayLabel,
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(bottom = 4.dp)
@@ -293,7 +296,7 @@ fun LatencyChart(
         ) {
             if (dataPoints.isEmpty()) {
                 Text(
-                    text = "Warte auf Daten...",
+                    text = stringResource(R.string.waiting_for_data),
                     style = MaterialTheme.typography.bodySmall,
                     color = labelColor,
                     modifier = Modifier.align(Alignment.Center)

@@ -44,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +58,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.scanner.app.R
 import com.scanner.app.data.db.DeviceCategory
 import com.scanner.app.data.db.DiscoveredDeviceEntity
 import com.scanner.app.data.repository.DeviceRepository
@@ -68,6 +71,7 @@ import com.scanner.app.ui.components.SpectrumHeader
 import com.scanner.app.ui.components.SpectrumKicker
 import com.scanner.app.ui.theme.JetBrainsMonoFamily
 import com.scanner.app.ui.theme.Spectrum
+import com.scanner.app.ui.viewmodel.InventoryViewModel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -84,15 +88,16 @@ private val BT_CATEGORIES = setOf(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun InventoryScreen(
+    vm: InventoryViewModel = viewModel(),
     onNavigateToDevice: ((Long) -> Unit)? = null,
 ) {
     val context = LocalContext.current
-    val repository = remember { DeviceRepository(context) }
+    val repository = vm.repository
     val scope = rememberCoroutineScope()
 
-    var kind by remember { mutableStateOf("all") }
-    var favOnly by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
+    val kind = vm.kind
+    val favOnly = vm.favOnly
+    val searchQuery = vm.searchQuery
 
     val baseDevices by remember(searchQuery, kind) {
         when {
@@ -115,15 +120,15 @@ fun InventoryScreen(
     val lanCount by repository.observeDevicesByCategory(DeviceCategory.LAN)
         .map { it.size }.collectAsState(initial = 0)
 
-    var editDialogDevice by remember { mutableStateOf<DiscoveredDeviceEntity?>(null) }
-    var showExportDialog by remember { mutableStateOf(false) }
+    val editDialogDevice = vm.editDialogDevice
+    val showExportDialog = vm.showExportDialog
 
     Box(Modifier.fillMaxSize()) {
     Column(Modifier.fillMaxSize().background(Spectrum.Surface)) {
 
         SpectrumHeader(
             kicker = "INVENTORY",
-            subtitle = "Catalog",
+            subtitle = stringResource(R.string.inventory_catalog),
             trailing = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -131,7 +136,7 @@ fun InventoryScreen(
                     modifier = Modifier
                         .clip(RoundedCornerShape(999.dp))
                         .border(1.dp, Spectrum.AccentDim, RoundedCornerShape(999.dp))
-                        .clickable { showExportDialog = true }
+                        .clickable { vm.showExportDialog = true }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                 ) {
                     Icon(
@@ -141,7 +146,7 @@ fun InventoryScreen(
                         modifier = Modifier.size(14.dp),
                     )
                     Text(
-                        "EXPORT",
+                        stringResource(R.string.btn_export),
                         fontFamily = JetBrainsMonoFamily,
                         fontSize = 11.sp,
                         color = Spectrum.Accent,
@@ -152,7 +157,7 @@ fun InventoryScreen(
         )
 
         // Inline search
-        InvSearchBar(query = searchQuery, onQueryChange = { searchQuery = it })
+        InvSearchBar(query = searchQuery, onQueryChange = { vm.searchQuery = it })
         HairlineHorizontal()
 
         // Filter chips
@@ -163,11 +168,11 @@ fun InventoryScreen(
                 .padding(horizontal = 18.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            SpectrumFilterChip("ALL", kind == "all", { kind = "all" }, count = totalCount)
-            SpectrumFilterChip("WIFI", kind == "wifi", { kind = "wifi" }, count = wifiCount)
-            SpectrumFilterChip("BT", kind == "bt", { kind = "bt" }, count = btCount)
-            SpectrumFilterChip("LAN", kind == "lan", { kind = "lan" }, count = lanCount)
-            SpectrumFilterChip("★ FAVS", favOnly, { favOnly = !favOnly })
+            SpectrumFilterChip(stringResource(R.string.filter_all), kind == "all", { vm.kind = "all" }, count = totalCount)
+            SpectrumFilterChip("WIFI", kind == "wifi", { vm.kind = "wifi" }, count = wifiCount)
+            SpectrumFilterChip("BT", kind == "bt", { vm.kind = "bt" }, count = btCount)
+            SpectrumFilterChip("LAN", kind == "lan", { vm.kind = "lan" }, count = lanCount)
+            SpectrumFilterChip(stringResource(R.string.filter_favs), favOnly, { vm.favOnly = !favOnly })
         }
         HairlineHorizontal()
 
@@ -179,7 +184,7 @@ fun InventoryScreen(
                     InvDeviceRow(
                         device = device,
                         onToggleFavorite = { scope.launch { repository.toggleFavorite(device.id) } },
-                        onEdit = { editDialogDevice = device },
+                        onEdit = { vm.editDialogDevice = device },
                         onDelete = { scope.launch { repository.deleteDevice(device.id) } },
                     )
                     HairlineHorizontal()
@@ -192,19 +197,19 @@ fun InventoryScreen(
     editDialogDevice?.let { device ->
         EditDeviceDialog(
             device = device,
-            onDismiss = { editDialogDevice = null },
+            onDismiss = { vm.editDialogDevice = null },
             onSave = { label, notes ->
                 scope.launch {
                     repository.setCustomLabel(device.id, label.ifBlank { null })
                     repository.setNotes(device.id, notes.ifBlank { null })
                 }
-                editDialogDevice = null
+                vm.editDialogDevice = null
             },
         )
     }
 
     if (showExportDialog) {
-        ExportDialog(onDismiss = { showExportDialog = false })
+        ExportDialog(onDismiss = { vm.showExportDialog = false })
     }
     } // Box
 }
@@ -249,7 +254,7 @@ private fun InvSearchBar(query: String, onQueryChange: (String) -> Unit) {
                 decorationBox = { inner ->
                     if (query.isEmpty()) {
                         Text(
-                            "search · name · mac · label",
+                            stringResource(R.string.inv_search_placeholder),
                             fontFamily = JetBrainsMonoFamily,
                             fontSize = 12.sp,
                             color = Spectrum.OnSurfaceDim,
@@ -261,7 +266,7 @@ private fun InvSearchBar(query: String, onQueryChange: (String) -> Unit) {
             if (query.isNotEmpty()) {
                 Icon(
                     Icons.Outlined.Close,
-                    contentDescription = "Löschen",
+                    contentDescription = stringResource(R.string.cd_clear),
                     tint = Spectrum.OnSurfaceDim,
                     modifier = Modifier.size(14.dp).clickable { onQueryChange("") },
                 )
@@ -277,12 +282,12 @@ private fun InvEmptyState(query: String) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            SpectrumKicker("— NO MATCHES —", color = Spectrum.OnSurfaceDim)
+            SpectrumKicker(stringResource(R.string.inv_no_matches_kicker), color = Spectrum.OnSurfaceDim)
             Text(
                 if (query.isNotBlank())
-                    "Keine Geräte für \"$query\" gefunden."
+                    stringResource(R.string.inv_no_matches_query, query)
                 else
-                    "Noch keine Geräte gespeichert.\nStarte einen WLAN- oder Bluetooth-Scan.",
+                    stringResource(R.string.inv_no_devices),
                 color = Spectrum.OnSurfaceDim,
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 12.sp,
@@ -313,6 +318,8 @@ private fun InvDeviceRow(
         DeviceCategory.BT_CLASSIC, DeviceCategory.BT_BLE, DeviceCategory.BT_DUAL -> Icons.Outlined.Bluetooth
         DeviceCategory.LAN -> Icons.Outlined.Lan
     }
+
+    val context = LocalContext.current
 
     Column {
         Row(
@@ -350,7 +357,7 @@ private fun InvDeviceRow(
                     )
                     Icon(
                         imageVector = if (device.isFavorite) Icons.Outlined.Star else Icons.Outlined.StarOutline,
-                        contentDescription = if (device.isFavorite) "Aus Favoriten entfernen" else "Als Favorit",
+                        contentDescription = if (device.isFavorite) stringResource(R.string.cd_remove_fav) else stringResource(R.string.cd_add_fav),
                         tint = if (device.isFavorite) Spectrum.Accent else Spectrum.OnSurfaceFaint,
                         modifier = Modifier
                             .size(16.dp)
@@ -388,13 +395,13 @@ private fun InvDeviceRow(
             // Sessions × last seen
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    "${device.timesSeen}× gesehen",
+                    stringResource(R.string.inv_times_seen, device.timesSeen),
                     fontFamily = JetBrainsMonoFamily,
                     fontSize = 10.sp,
                     color = Spectrum.OnSurfaceDim,
                 )
                 Text(
-                    formatRelativeTime(device.lastSeen),
+                    formatRelativeTime(device.lastSeen, context),
                     fontFamily = JetBrainsMonoFamily,
                     fontSize = 9.sp,
                     color = Spectrum.OnSurfaceFaint,
@@ -404,15 +411,15 @@ private fun InvDeviceRow(
             Box {
                 DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                     DropdownMenuItem(
-                        text = { Text(if (device.isFavorite) "Aus Favoriten entfernen" else "Als Favorit") },
+                        text = { Text(if (device.isFavorite) stringResource(R.string.cd_remove_fav) else stringResource(R.string.cd_add_fav)) },
                         onClick = { onToggleFavorite(); showMenu = false },
                     )
                     DropdownMenuItem(
-                        text = { Text("Bearbeiten") },
+                        text = { Text(stringResource(R.string.str_edit)) },
                         onClick = { onEdit(); showMenu = false },
                     )
                     DropdownMenuItem(
-                        text = { Text("Löschen", color = Spectrum.Danger) },
+                        text = { Text(stringResource(R.string.str_delete), color = Spectrum.Danger) },
                         onClick = { onDelete(); showMenu = false },
                     )
                 }
@@ -441,14 +448,14 @@ private fun InvDeviceDetail(
             .padding(horizontal = 18.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        InvDetailRow("Adresse", device.address)
-        InvDetailRow("Kategorie", device.deviceCategory.displayName())
-        InvDetailRow("Zuerst gesehen", timeFormatter.format(device.firstSeen))
-        InvDetailRow("Zuletzt gesehen", timeFormatter.format(device.lastSeen))
-        InvDetailRow("Anzahl Sichtungen", "${device.timesSeen}")
-        device.lastSignalStrength?.let { InvDetailRow("Letzte Signalstärke", "$it dBm") }
-        device.customLabel?.let { InvDetailRow("Label", it) }
-        device.notes?.let { InvDetailRow("Notizen", it) }
+        InvDetailRow(stringResource(R.string.detail_address), device.address)
+        InvDetailRow(stringResource(R.string.detail_category), device.deviceCategory.displayName())
+        InvDetailRow(stringResource(R.string.detail_first_seen), timeFormatter.format(device.firstSeen))
+        InvDetailRow(stringResource(R.string.detail_last_seen), timeFormatter.format(device.lastSeen))
+        InvDetailRow(stringResource(R.string.detail_times_seen), "${device.timesSeen}")
+        device.lastSignalStrength?.let { InvDetailRow(stringResource(R.string.detail_last_rssi), "$it dBm") }
+        device.customLabel?.let { InvDetailRow(stringResource(R.string.detail_label), it) }
+        device.notes?.let { InvDetailRow(stringResource(R.string.detail_notes), it) }
 
         if (meta != null) {
             Spacer(Modifier.height(6.dp))
@@ -457,49 +464,53 @@ private fun InvDeviceDetail(
 
             when (device.deviceCategory) {
                 DeviceCategory.WIFI -> {
-                    SpectrumKicker("WLAN-DETAILS", color = Spectrum.Accent)
+                    SpectrumKicker(stringResource(R.string.kicker_wifi_details), color = Spectrum.Accent)
                     Spacer(Modifier.height(4.dp))
-                    meta.optString("vendor").takeIf { it.isNotBlank() }?.let { InvDetailRow("Hersteller", it) }
+                    meta.optString("vendor").takeIf { it.isNotBlank() }?.let { InvDetailRow(stringResource(R.string.detail_vendor), it) }
                     meta.optString("wifiStandard").takeIf { it.isNotBlank() }?.let { std ->
                         val bw = meta.optString("channelWidth")
-                        InvDetailRow("WLAN Standard", if (bw.isNotBlank()) "$std ($bw)" else std)
+                        InvDetailRow(stringResource(R.string.detail_wifi_std), if (bw.isNotBlank()) "$std ($bw)" else std)
                     }
-                    meta.optInt("frequency", 0).takeIf { it > 0 }?.let { InvDetailRow("Frequenz", "$it MHz") }
-                    meta.optInt("channel", 0).takeIf { it > 0 }?.let { InvDetailRow("Kanal", "$it") }
-                    meta.optString("band").takeIf { it.isNotBlank() }?.let { InvDetailRow("Band", it) }
-                    meta.optString("security").takeIf { it.isNotBlank() }?.let { InvDetailRow("Sicherheit", it) }
+                    meta.optInt("frequency", 0).takeIf { it > 0 }?.let { InvDetailRow(stringResource(R.string.detail_freq), "$it MHz") }
+                    meta.optInt("channel", 0).takeIf { it > 0 }?.let { InvDetailRow(stringResource(R.string.detail_channel), "$it") }
+                    meta.optString("band").takeIf { it.isNotBlank() }?.let { InvDetailRow(stringResource(R.string.detail_band), it) }
+                    meta.optString("security").takeIf { it.isNotBlank() }?.let { InvDetailRow(stringResource(R.string.detail_security), it) }
                     val dist = meta.optDouble("distance", Double.NaN)
-                    if (!dist.isNaN()) InvDetailRow("Distanz (Schätzung)", "ca. %.1fm".format(dist))
-                    if (meta.optBoolean("wpsEnabled")) InvDetailRow("WPS", "Aktiviert")
+                    if (!dist.isNaN()) InvDetailRow(stringResource(R.string.detail_distance), stringResource(R.string.val_distance_est, dist))
+                    if (meta.optBoolean("wpsEnabled")) InvDetailRow("WPS", stringResource(R.string.val_enabled))
                     val lat = meta.optDouble("latitude", Double.NaN)
                     val lon = meta.optDouble("longitude", Double.NaN)
                     if (!lat.isNaN() && !lon.isNaN()) {
                         InvDetailRow("GPS", "%.6f, %.6f".format(lat, lon))
                         val alt = meta.optDouble("altitude", Double.NaN)
-                        if (!alt.isNaN()) InvDetailRow("Höhe", "%.1f m".format(alt))
+                        if (!alt.isNaN()) InvDetailRow(stringResource(R.string.detail_altitude), "%.1f m".format(alt))
                     }
-                    if (meta.optBoolean("isConnected")) InvDetailRow("Status", "Verbunden")
+                    if (meta.optBoolean("isConnected")) InvDetailRow(stringResource(R.string.detail_status), stringResource(R.string.val_connected))
                 }
 
                 DeviceCategory.BT_CLASSIC, DeviceCategory.BT_BLE, DeviceCategory.BT_DUAL -> {
-                    SpectrumKicker("BLUETOOTH-DETAILS", color = Spectrum.Accent)
+                    SpectrumKicker(stringResource(R.string.kicker_bt_details), color = Spectrum.Accent)
                     Spacer(Modifier.height(4.dp))
-                    meta.optString("deviceClass").takeIf { it.isNotBlank() }?.let { InvDetailRow("Geräteklasse", it) }
+                    meta.optString("deviceClass").takeIf { it.isNotBlank() }?.let { InvDetailRow(stringResource(R.string.detail_device_class), it) }
                     meta.optString("bondState").takeIf { it.isNotBlank() }?.let {
-                        InvDetailRow("Kopplung", when (it) {
-                            "BONDED" -> "Gekoppelt"; "BONDING" -> "Kopplung..."; else -> "Nicht gekoppelt"
-                        })
+                        val stateStr = when (it) {
+                            "BONDED" -> stringResource(R.string.val_bonded)
+                            "BONDING" -> stringResource(R.string.val_bonding)
+                            else -> stringResource(R.string.val_not_bonded)
+                        }
+                        InvDetailRow(stringResource(R.string.detail_bond), stateStr)
                     }
-                    if (meta.optBoolean("isConnected")) InvDetailRow("Status", "Verbunden")
+                    if (meta.optBoolean("isConnected")) InvDetailRow(stringResource(R.string.detail_status), stringResource(R.string.val_connected))
                     val gattServices = meta.optJSONObject("gattData")?.optJSONArray("services")
+                    val unknownGeneral = stringResource(R.string.unknown_general)
                     if (gattServices != null && gattServices.length() > 0) {
                         Spacer(Modifier.height(4.dp))
-                        SpectrumKicker("GATT-DIENSTE · ${gattServices.length()}", color = Spectrum.Accent2)
+                        SpectrumKicker(stringResource(R.string.kicker_gatt_services, gattServices.length()), color = Spectrum.Accent2)
                         Spacer(Modifier.height(4.dp))
                         for (i in 0 until gattServices.length()) {
                             val svc = gattServices.optJSONObject(i) ?: continue
                             InvDetailRow(
-                                svc.optString("name", "Unbekannt"),
+                                svc.optString("name", unknownGeneral),
                                 "${svc.optJSONArray("characteristics")?.length() ?: 0} CHRs",
                             )
                         }
@@ -507,35 +518,36 @@ private fun InvDeviceDetail(
                 }
 
                 DeviceCategory.LAN -> {
-                    SpectrumKicker("LAN-DETAILS", color = Spectrum.Accent)
+                    SpectrumKicker(stringResource(R.string.kicker_lan_details), color = Spectrum.Accent)
                     Spacer(Modifier.height(4.dp))
-                    meta.optString("ip").takeIf { it.isNotBlank() }?.let { InvDetailRow("IP-Adresse", it) }
-                    meta.optString("mac").takeIf { it.isNotBlank() }?.let { InvDetailRow("MAC-Adresse", it) }
+                    meta.optString("ip").takeIf { it.isNotBlank() }?.let { InvDetailRow(stringResource(R.string.detail_ip_address), it) }
+                    meta.optString("mac").takeIf { it.isNotBlank() }?.let { InvDetailRow(stringResource(R.string.detail_mac_address), it) }
                     (meta.optString("vendorFull").takeIf { it.isNotBlank() }
-                        ?: meta.optString("vendor").takeIf { it.isNotBlank() })?.let { InvDetailRow("Hersteller", it) }
-                    meta.optString("hostname").takeIf { it.isNotBlank() }?.let { InvDetailRow("Hostname / NetBIOS", it) }
-                    meta.optDouble("latencyMs", -1.0).takeIf { it >= 0 }?.let { InvDetailRow("Latenz", "${"%.1f".format(it)} ms") }
-                    if (meta.optBoolean("isGateway")) InvDetailRow("Rolle", "Gateway / Router")
-                    if (meta.optBoolean("isOwnDevice")) InvDetailRow("Rolle", "Eigenes Gerät")
+                        ?: meta.optString("vendor").takeIf { it.isNotBlank() })?.let { InvDetailRow(stringResource(R.string.detail_vendor), it) }
+                    meta.optString("hostname").takeIf { it.isNotBlank() }?.let { InvDetailRow(stringResource(R.string.detail_hostname), it) }
+                    meta.optDouble("latencyMs", -1.0).takeIf { it >= 0 }?.let { InvDetailRow(stringResource(R.string.detail_latency), "${"%.1f".format(it)} ms") }
+                    if (meta.optBoolean("isGateway")) InvDetailRow(stringResource(R.string.detail_role), stringResource(R.string.val_role_gateway))
+                    if (meta.optBoolean("isOwnDevice")) InvDetailRow(stringResource(R.string.detail_role), stringResource(R.string.val_role_own))
                     val services = meta.optJSONArray("services")
                     if (services != null && services.length() > 0) {
                         Spacer(Modifier.height(4.dp))
-                        SpectrumKicker("DIENSTE · ${services.length()}", color = Spectrum.Accent2)
+                        SpectrumKicker(stringResource(R.string.kicker_services, services.length()), color = Spectrum.Accent2)
                         Spacer(Modifier.height(4.dp))
+                        val serviceUnknown = stringResource(R.string.val_service_unknown)
                         for (i in 0 until services.length()) {
                             val svc = services.optJSONObject(i) ?: continue
-                            InvDetailRow(svc.optString("type", "Dienst"), "${svc.optString("name", "")} :${svc.optInt("port", 0)}")
+                            InvDetailRow(svc.optString("type", serviceUnknown), "${svc.optString("name", "")} :${svc.optInt("port", 0)}")
                         }
                     }
                     val openPorts = meta.optJSONArray("openPorts")
                     if (openPorts != null && openPorts.length() > 0) {
                         Spacer(Modifier.height(4.dp))
-                        SpectrumKicker("OFFENE PORTS · ${openPorts.length()}", color = Spectrum.SeverityHigh)
+                        SpectrumKicker(stringResource(R.string.kicker_open_ports, openPorts.length()), color = Spectrum.SeverityHigh)
                         Spacer(Modifier.height(4.dp))
                         for (i in 0 until openPorts.length()) {
                             val p = openPorts.optJSONObject(i) ?: continue
                             InvDetailRow(
-                                "Port ${p.optInt("port", 0)} (${p.optString("service", "")})",
+                                stringResource(R.string.val_port_service, p.optInt("port", 0), p.optString("service", "")),
                                 p.optString("banner", "").ifBlank { p.optString("state", "") },
                             )
                         }
@@ -611,7 +623,7 @@ fun EditDeviceDialog(
 
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Gerät bearbeiten") },
+        title = { Text(stringResource(R.string.dialog_edit_device)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
@@ -623,8 +635,8 @@ fun EditDeviceDialog(
                 OutlinedTextField(
                     value = label,
                     onValueChange = { label = it },
-                    label = { Text("Eigenes Label") },
-                    placeholder = { Text("z.B. Drucker 2. OG") },
+                    label = { Text(stringResource(R.string.label_custom)) },
+                    placeholder = { Text(stringResource(R.string.ph_custom_label)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -636,8 +648,8 @@ fun EditDeviceDialog(
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("Notizen") },
-                    placeholder = { Text("Freitext-Notizen...") },
+                    label = { Text(stringResource(R.string.label_notes)) },
+                    placeholder = { Text(stringResource(R.string.ph_custom_notes)) },
                     minLines = 2,
                     maxLines = 4,
                     modifier = Modifier.fillMaxWidth(),
@@ -651,27 +663,27 @@ fun EditDeviceDialog(
         },
         confirmButton = {
             androidx.compose.material3.TextButton(onClick = { onSave(label, notes) }) {
-                Text("Speichern", color = Spectrum.Accent)
+                Text(stringResource(R.string.btn_save), color = Spectrum.Accent)
             }
         },
         dismissButton = {
             androidx.compose.material3.TextButton(onClick = onDismiss) {
-                Text("Abbrechen", color = Spectrum.OnSurfaceDim)
+                Text(stringResource(R.string.btn_cancel), color = Spectrum.OnSurfaceDim)
             }
         },
     )
 }
 
-private fun formatRelativeTime(instant: Instant): String {
+private fun formatRelativeTime(instant: Instant, context: android.content.Context): String {
     val now = Instant.now()
     val minutes = ChronoUnit.MINUTES.between(instant, now)
     val hours = ChronoUnit.HOURS.between(instant, now)
     val days = ChronoUnit.DAYS.between(instant, now)
     return when {
-        minutes < 1 -> "gerade eben"
-        minutes < 60 -> "vor ${minutes}min"
-        hours < 24 -> "vor ${hours}h"
-        days < 7 -> "vor ${days}d"
+        minutes < 1 -> context.getString(R.string.time_just_now)
+        minutes < 60 -> context.getString(R.string.time_mins_ago, minutes)
+        hours < 24 -> context.getString(R.string.time_hours_ago, hours)
+        days < 7 -> context.getString(R.string.time_days_ago, days)
         else -> DateTimeFormatter.ofPattern("dd.MM.yy").withZone(ZoneId.systemDefault()).format(instant)
     }
 }

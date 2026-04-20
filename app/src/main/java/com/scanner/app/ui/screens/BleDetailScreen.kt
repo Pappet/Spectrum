@@ -35,14 +35,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import com.scanner.app.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -50,6 +53,7 @@ import com.scanner.app.ui.components.HairlineHorizontal
 import com.scanner.app.ui.theme.InterFamily
 import com.scanner.app.ui.theme.JetBrainsMonoFamily
 import com.scanner.app.ui.theme.Spectrum
+import com.scanner.app.ui.viewmodel.BluetoothViewModel
 import com.scanner.app.util.BleUuidDatabase
 import com.scanner.app.util.CharacteristicProperty
 import com.scanner.app.util.ConnectionState
@@ -66,13 +70,11 @@ import com.scanner.app.util.GattServiceInfo
 fun GattDetailView(
     state: GattExplorerState,
     onDisconnect: () -> Unit,
+    vm: BluetoothViewModel = viewModel()
 ) {
-    var openSvc by remember { mutableStateOf<String?>(null) }
-    var selChar by remember { mutableStateOf<GattCharacteristicInfo?>(null) }
-
     // Auto-open first service once discovery completes
-    if (openSvc == null && state.services.isNotEmpty()) {
-        openSvc = state.services.first().uuid.toString()
+    if (vm.openSvc == null && state.services.isNotEmpty()) {
+        vm.openSvc = state.services.first().uuid.toString()
     }
 
     Box(Modifier.fillMaxSize().background(Spectrum.Surface)) {
@@ -85,19 +87,19 @@ fun GattDetailView(
                 ConnectionState.CONNECTED -> GattBusy(state.connectionState.label)
                 else -> GattServiceList(
                     state = state,
-                    openSvc = openSvc,
+                    openSvc = vm.openSvc,
                     onToggleSvc = { uuid ->
-                        openSvc = if (openSvc == uuid) null else uuid
+                        vm.openSvc = if (vm.openSvc == uuid) null else uuid
                     },
-                    onSelectChar = { selChar = it },
+                    onSelectChar = { vm.selChar = it },
                 )
             }
         }
 
-        selChar?.let { char ->
+        vm.selChar?.let { char ->
             CharacteristicSheet(
                 char = char,
-                onClose = { selChar = null },
+                onClose = { vm.selChar = null },
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
@@ -118,7 +120,7 @@ private fun GattHeader(state: GattExplorerState, onDisconnect: () -> Unit) {
         ) {
             IconSquareButton(
                 icon = Icons.Outlined.Close,
-                contentDescription = "Trennen",
+                contentDescription = stringResource(R.string.btn_disconnect),
                 onClick = onDisconnect,
             )
             Column(Modifier.weight(1f)) {
@@ -212,11 +214,11 @@ private fun LinkBadge(conn: ConnectionState) {
             conn == ConnectionState.DISCOVERING
     val color = if (linked) Spectrum.Accent else Spectrum.OnSurfaceDim
     val label = when (conn) {
-        ConnectionState.READY, ConnectionState.READING -> "LINK"
-        ConnectionState.DISCOVERING -> "SCAN"
-        ConnectionState.CONNECTING -> "WAIT"
-        ConnectionState.FAILED -> "FAIL"
-        else -> "OFF"
+        ConnectionState.READY, ConnectionState.READING -> stringResource(R.string.val_link)
+        ConnectionState.DISCOVERING -> stringResource(R.string.val_scan)
+        ConnectionState.CONNECTING -> stringResource(R.string.val_wait)
+        ConnectionState.FAILED -> stringResource(R.string.val_fail)
+        else -> stringResource(R.string.val_off)
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -304,7 +306,7 @@ private fun GattServiceList(
     if (state.services.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
-                "NO SERVICES",
+                stringResource(R.string.empty_no_services),
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 11.sp,
                 color = Spectrum.OnSurfaceDim,
@@ -358,7 +360,7 @@ private fun ServiceAccordion(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    "${svc.category.label.uppercase()} · ${svc.characteristics.size} CHAR",
+                    stringResource(R.string.kicker_chars, svc.category.label.uppercase(), svc.characteristics.size),
                     fontFamily = JetBrainsMonoFamily,
                     fontSize = 10.sp,
                     color = Spectrum.OnSurfaceDim,
@@ -368,7 +370,7 @@ private fun ServiceAccordion(
             }
             Icon(
                 Icons.Outlined.ExpandMore,
-                contentDescription = if (open) "Zuklappen" else "Aufklappen",
+                contentDescription = if (open) stringResource(R.string.cd_collapse) else stringResource(R.string.cd_expand),
                 tint = Spectrum.OnSurfaceDim,
                 modifier = Modifier
                     .size(14.dp)
@@ -501,7 +503,7 @@ private fun CharacteristicSheet(
             ) {
                 Icon(
                     Icons.Outlined.Close,
-                    contentDescription = "Schließen",
+                    contentDescription = stringResource(R.string.btn_close),
                     tint = Spectrum.OnSurfaceDim,
                     modifier = Modifier.size(14.dp),
                 )
@@ -526,7 +528,7 @@ private fun CharacteristicSheet(
 
         val valueText = char.stringValue
             ?: char.value?.joinToString(" ") { "%02X".format(it) }
-            ?: "— no value —"
+            ?: stringResource(R.string.empty_no_value)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -548,7 +550,7 @@ private fun CharacteristicSheet(
 
         if (char.descriptors.isNotEmpty()) {
             Text(
-                "DESCRIPTORS · ${char.descriptors.size}",
+                stringResource(R.string.kicker_descriptors, char.descriptors.size),
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 10.sp,
                 color = Spectrum.OnSurfaceDim,

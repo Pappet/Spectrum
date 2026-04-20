@@ -18,6 +18,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.scanner.app.ui.viewmodel.SecurityAuditViewModel
+import androidx.compose.ui.res.stringResource
+import com.scanner.app.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,21 +53,16 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun SecurityAuditScreen() {
+fun SecurityAuditScreen(vm: SecurityAuditViewModel = viewModel()) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val wifiScanner = remember { WifiScanner(context) }
-    val btScanner = remember { BluetoothScanner(context) }
-    val portScanner = remember { PortScanner() }
-    val pingUtil = remember { PingUtil(context) }
 
-    var wifiNetworks by remember { mutableStateOf<List<WifiNetwork>>(emptyList()) }
-    var btDevices by remember { mutableStateOf<List<BluetoothDevice>>(emptyList()) }
-    var openPorts by remember { mutableStateOf<List<PortScanResult>>(emptyList()) }
-    var report by remember { mutableStateOf<SecurityAuditReport?>(null) }
-    var isAuditing by remember { mutableStateOf(false) }
-    var auditPhase by remember { mutableStateOf("") }
-    var portScanProgress by remember { mutableStateOf<PortScanProgress?>(null) }
+    val wifiNetworks = vm.wifiNetworks
+    val btDevices = vm.btDevices
+    val openPorts = vm.openPorts
+    val report = vm.report
+    val isAuditing = vm.isAuditing
+    val auditPhase = vm.auditPhase
+    val portScanProgress = vm.portScanProgress
 
     val permissions = buildList {
         add(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -78,77 +77,12 @@ fun SecurityAuditScreen() {
     }
     val permissionState = rememberMultiplePermissionsState(permissions)
 
-    DisposableEffect(Unit) {
-        onDispose {
-            wifiScanner.cleanup()
-            btScanner.cleanup()
-        }
-    }
-
     fun runAudit() {
         if (!permissionState.allPermissionsGranted) {
             permissionState.launchMultiplePermissionRequest()
             return
         }
-        isAuditing = true
-        openPorts = emptyList()
-        scope.launch {
-            try {
-                auditPhase = "WLAN scannen..."
-                wifiNetworks = try {
-                    val deferred = kotlinx.coroutines.CompletableDeferred<List<WifiNetwork>>()
-                    wifiScanner.startScan { results -> deferred.complete(results) }
-                    kotlinx.coroutines.withTimeoutOrNull(10_000L) { deferred.await() } ?: emptyList()
-                } catch (e: Exception) { Log.e("SecurityAudit", "WiFi scan error", e); emptyList() }
-
-                auditPhase = "Bluetooth scannen..."
-                btDevices = try {
-                    val deferred = kotlinx.coroutines.CompletableDeferred<List<BluetoothDevice>>()
-                    btScanner.startScan(
-                        durationMs = 6000L,
-                        onProgress = { devices ->
-                            scope.launch(Dispatchers.Main.immediate) {
-                                try { btDevices = devices } catch (_: Exception) {}
-                            }
-                        },
-                        onComplete = { results -> deferred.complete(results) }
-                    )
-                    kotlinx.coroutines.withTimeoutOrNull(15_000L) { deferred.await() } ?: emptyList()
-                } catch (e: Exception) { Log.e("SecurityAudit", "BT scan error", e); emptyList() }
-
-                try {
-                    val gateway = pingUtil.getNetworkInfo().gatewayIp
-                    if (gateway != null) {
-                        auditPhase = "Port-Scan: $gateway..."
-                        val scanResults = portScanner.scan(
-                            ip = gateway,
-                            ports = WellKnownPorts.QUICK_20,
-                            grabBanners = true,
-                            onProgress = { p ->
-                                scope.launch(Dispatchers.Main.immediate) { portScanProgress = p }
-                            }
-                        )
-                        withContext(Dispatchers.Main) { openPorts = scanResults }
-                    }
-                } catch (e: Exception) { Log.e("SecurityAudit", "Port scan error", e) }
-
-                auditPhase = "Bericht erstellen..."
-                report = try {
-                    SecurityAuditor.audit(
-                        wifiNetworks = wifiNetworks,
-                        btDevices = btDevices,
-                        openPorts = openPorts,
-                        connectedSsid = wifiScanner.getConnectedSsid()
-                    )
-                } catch (e: Exception) { Log.e("SecurityAudit", "Report error", e); null }
-            } catch (e: Exception) {
-                Log.e("SecurityAudit", "Audit error", e)
-            } finally {
-                isAuditing = false
-                auditPhase = ""
-                portScanProgress = null
-            }
-        }
+        vm.runAudit()
     }
 
     val r = report
@@ -221,7 +155,7 @@ fun SecurityAuditScreen() {
                         )
                         Spacer(Modifier.height(12.dp))
                         Text(
-                            "AUDIT STARTEN",
+                            stringResource(R.string.audit_start),
                             fontFamily = JetBrainsMonoFamily,
                             fontSize = 11.sp,
                             letterSpacing = 0.15.em,
@@ -229,7 +163,7 @@ fun SecurityAuditScreen() {
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            "Prüft WLAN · Bluetooth · Gateway-Ports",
+                            stringResource(R.string.audit_desc),
                             fontFamily = JetBrainsMonoFamily,
                             fontSize = 10.sp,
                             color = Spectrum.OnSurfaceFaint,
@@ -254,7 +188,7 @@ fun SecurityAuditScreen() {
                         SpectrumKicker("GRADE")
                         Spacer(Modifier.height(2.dp))
                         Text(
-                            gradeDescriptor(r.overallScore),
+                            gradeDescriptor(r.overallScore, context),
                             fontFamily = JetBrainsMonoFamily,
                             fontSize = 22.sp,
                             color = Spectrum.OnSurface,
@@ -262,7 +196,7 @@ fun SecurityAuditScreen() {
                         )
                         Spacer(Modifier.height(4.dp))
                         Text(
-                            buildCountSummary(r),
+                            buildCountSummary(r, context),
                             fontFamily = JetBrainsMonoFamily,
                             fontSize = 11.sp,
                             color = Spectrum.OnSurfaceDim,
@@ -276,7 +210,7 @@ fun SecurityAuditScreen() {
             if (r.findings.isNotEmpty()) {
                 item {
                     SpectrumKicker(
-                        "FINDINGS · ${r.findings.size}",
+                        stringResource(R.string.kicker_findings, r.findings.size),
                         modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
                     )
                 }
@@ -290,7 +224,7 @@ fun SecurityAuditScreen() {
             if (openPorts.isNotEmpty()) {
                 item {
                     SpectrumKicker(
-                        "GATEWAY-PORTS · ${openPorts.size}",
+                        stringResource(R.string.kicker_gateway_ports, openPorts.size),
                         modifier = Modifier.padding(horizontal = 18.dp, vertical = 10.dp),
                     )
                 }
@@ -303,7 +237,7 @@ fun SecurityAuditScreen() {
             // Hint
             item {
                 Text(
-                    "Port-Scans einzelner Geräte findest du im LAN-Tab.",
+                    stringResource(R.string.audit_lan_hint),
                     fontFamily = JetBrainsMonoFamily,
                     fontSize = 10.sp,
                     color = Spectrum.OnSurfaceFaint,
@@ -537,7 +471,7 @@ private fun SecPortRow(port: PortScanResult) {
             ) {
                 Icon(
                     Icons.Outlined.OpenInBrowser,
-                    contentDescription = "Im Browser öffnen",
+                    contentDescription = stringResource(R.string.cd_open_browser),
                     tint = Spectrum.Accent2,
                     modifier = Modifier.size(16.dp),
                 )
@@ -552,22 +486,22 @@ private fun gradeColor(score: Int): Color = when {
     else -> Spectrum.Danger
 }
 
-private fun gradeDescriptor(score: Int): String = when {
-    score >= 90 -> "Sehr gut geschützt"
-    score >= 75 -> "Gut geschützt"
-    score >= 60 -> "Moderate Risiken"
-    score >= 40 -> "Mehrere Risiken"
-    else -> "Kritische Risiken"
+private fun gradeDescriptor(score: Int, context: android.content.Context): String = when {
+    score >= 90 -> context.getString(R.string.grade_excellent)
+    score >= 75 -> context.getString(R.string.grade_good)
+    score >= 60 -> context.getString(R.string.grade_moderate)
+    score >= 40 -> context.getString(R.string.grade_high)
+    else -> context.getString(R.string.grade_critical)
 }
 
-private fun buildCountSummary(r: SecurityAuditReport): String =
+private fun buildCountSummary(r: SecurityAuditReport, context: android.content.Context): String =
     buildList {
-        if (r.criticalCount > 0) add("${r.criticalCount} kritisch")
-        if (r.highCount > 0) add("${r.highCount} hoch")
-        if (r.mediumCount > 0) add("${r.mediumCount} mittel")
-        if (r.lowCount > 0) add("${r.lowCount} niedrig")
-        if (r.infoCount > 0) add("${r.infoCount} info")
-    }.joinToString(" · ").ifEmpty { "Keine Findings" }
+        if (r.criticalCount > 0) add(context.getString(R.string.audit_count_critical, r.criticalCount))
+        if (r.highCount > 0) add(context.getString(R.string.audit_count_high, r.highCount))
+        if (r.mediumCount > 0) add(context.getString(R.string.audit_count_medium, r.mediumCount))
+        if (r.lowCount > 0) add(context.getString(R.string.audit_count_low, r.lowCount))
+        if (r.infoCount > 0) add(context.getString(R.string.audit_count_info, r.infoCount))
+    }.joinToString(" · ").ifEmpty { context.getString(R.string.audit_no_findings) }
 
 private fun severityColor(severity: FindingSeverity): Color = when (severity) {
     FindingSeverity.CRITICAL -> Spectrum.Danger

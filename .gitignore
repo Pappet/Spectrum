@@ -65,7 +65,7 @@ apikey.properties
 .claude/
 
 # Extracted design handoff (source zip is tracked, extraction is local-only)
-docs/handoff-extracted/
+done/
 # Added by code-review-graph
 .code-review-graph/
 .mcp.json

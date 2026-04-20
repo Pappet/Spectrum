@@ -20,7 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.scanner.app.R
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.scanner.app.data.db.DeviceCategory
@@ -99,7 +101,7 @@ fun ExportDialog(onDismiss: () -> Unit) {
                             letterSpacing = 0.2.em,
                         )
                         Text(
-                            "Package data",
+                            stringResource(R.string.export_package_data),
                             fontFamily = InterFamily,
                             fontSize = 22.sp,
                             letterSpacing = (-0.02).em,
@@ -116,7 +118,7 @@ fun ExportDialog(onDismiss: () -> Unit) {
                     ) {
                         Icon(
                             Icons.Outlined.Close,
-                            contentDescription = "Schließen",
+                            contentDescription = stringResource(R.string.btn_close),
                             tint = Spectrum.OnSurface,
                             modifier = Modifier.size(14.dp),
                         )
@@ -137,9 +139,9 @@ fun ExportDialog(onDismiss: () -> Unit) {
                     modifier = Modifier.padding(top = 8.dp),
                 ) {
                     listOf(
-                        Triple(ExportFormat.CSV, "CSV", "semicolon · UTF-8 BOM"),
-                        Triple(ExportFormat.JSON, "JSON", "with statistics header"),
-                        Triple(ExportFormat.PDF, "PDF", "A4 report"),
+                        Triple(ExportFormat.CSV, "CSV", stringResource(R.string.export_desc_csv)),
+                        Triple(ExportFormat.JSON, "JSON", stringResource(R.string.export_desc_json)),
+                        Triple(ExportFormat.PDF, "PDF", stringResource(R.string.export_desc_pdf)),
                     ).forEach { (fmt, label, desc) ->
                         ExportFormatTile(
                             label = label,
@@ -217,7 +219,7 @@ fun ExportDialog(onDismiss: () -> Unit) {
                         }
                     }
                     Text(
-                        "★ FAVORITES ONLY",
+                        stringResource(R.string.export_favorites_only),
                         fontFamily = JetBrainsMonoFamily,
                         fontSize = 11.sp,
                         letterSpacing = 0.12.em,
@@ -249,7 +251,7 @@ fun ExportDialog(onDismiss: () -> Unit) {
                                 onDone = { isExporting = false; onDismiss() },
                                 onError = { msg ->
                                     isExporting = false
-                                    Toast.makeText(context, "Export fehlgeschlagen: $msg", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, context.getString(R.string.export_failed, msg), Toast.LENGTH_LONG).show()
                                 },
                             )
                         }
@@ -264,7 +266,7 @@ fun ExportDialog(onDismiss: () -> Unit) {
                         )
                     } else {
                         Text(
-                            "EXPORT $totalCount ITEMS · ${selectedFormat.name} →",
+                            stringResource(R.string.export_btn_action, totalCount, selectedFormat.name),
                             fontFamily = JetBrainsMonoFamily,
                             fontSize = 12.sp,
                             letterSpacing = 0.2.em,
@@ -381,10 +383,10 @@ private fun doExport(
             )
             val result = exportManager.export(format, filter)
             val shareIntent = exportManager.share(result)
-            context.startActivity(Intent.createChooser(shareIntent, "Export teilen"))
+            context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.export_share_title)))
             onDone()
         } catch (e: Exception) {
-            onError(e.message ?: "Unbekannter Fehler")
+            onError(e.message ?: context.getString(R.string.export_unknown_error))
         }
     }
 }

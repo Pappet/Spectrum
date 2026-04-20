@@ -20,17 +20,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.scanner.app.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.scanner.app.ui.theme.Spectrum
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.scanner.app.ui.viewmodel.OnboardingViewModel
+
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun OnboardingScreen(onDone: () -> Unit) {
-    var step by remember { mutableStateOf(0) }
+fun OnboardingScreen(vm: OnboardingViewModel = viewModel(), onDone: () -> Unit) {
+    val step = vm.step
     
     val permissions = remember {
         val list = mutableListOf(
@@ -55,27 +60,27 @@ fun OnboardingScreen(onDone: () -> Unit) {
 
     val steps = listOf(
         StepData(
-            kicker = "SCANNER / 01",
-            title = "Instrument your airspace.",
-            body = "This app reads the radio around you — WiFi access points, Bluetooth beacons, devices on your local network. Nothing leaves your phone unless you explicitly export.",
-            cta = "CONTINUE"
+            kicker = stringResource(R.string.onboarding_kicker_start),
+            title = stringResource(R.string.onboarding_title_start),
+            body = stringResource(R.string.onboarding_body_start),
+            cta = stringResource(R.string.onboarding_cta_continue)
         ),
         StepData(
-            kicker = "PERMISSIONS / 02",
-            title = "Grant radio access.",
+            kicker = stringResource(R.string.onboarding_kicker_perms),
+            title = stringResource(R.string.onboarding_title_perms),
             perms = listOf(
-                PermData(Icons.Outlined.Wifi, "Nearby WiFi", "Scan and identify APs in range."),
-                PermData(Icons.Outlined.Bluetooth, "Bluetooth scan", "Discover classic + BLE devices."),
-                PermData(Icons.Outlined.Map, "Location (fine)", "Required by Android for WiFi/BT. Only used for wardriving when you explicitly enable it."),
-                PermData(Icons.Outlined.Notifications, "Notifications", "Status when background monitoring runs.")
+                PermData(Icons.Outlined.Wifi, stringResource(R.string.onboarding_perm_wifi_name), stringResource(R.string.onboarding_perm_wifi_desc)),
+                PermData(Icons.Outlined.Bluetooth, stringResource(R.string.onboarding_perm_bt_name), stringResource(R.string.onboarding_perm_bt_desc)),
+                PermData(Icons.Outlined.Map, stringResource(R.string.onboarding_perm_loc_name), stringResource(R.string.onboarding_perm_loc_desc)),
+                PermData(Icons.Outlined.Notifications, stringResource(R.string.onboarding_perm_notif_name), stringResource(R.string.onboarding_perm_notif_desc))
             ),
-            cta = "GRANT ALL"
+            cta = stringResource(R.string.onboarding_cta_grant)
         ),
         StepData(
-            kicker = "READY / 03",
-            title = "Calibrated.",
-            body = "Tap Scan on any tab to begin. Channel analysis and security audit refresh automatically after each pass.",
-            cta = "ENTER →"
+            kicker = stringResource(R.string.onboarding_kicker_ready),
+            title = stringResource(R.string.onboarding_title_ready),
+            body = stringResource(R.string.onboarding_body_ready),
+            cta = stringResource(R.string.onboarding_cta_enter)
         )
     )
 
@@ -191,7 +196,7 @@ fun OnboardingScreen(onDone: () -> Unit) {
                         }
                     }
                     if (step < steps.size - 1) {
-                        step += 1
+                        vm.step += 1
                     } else {
                         onDone()
                     }
@@ -211,12 +216,12 @@ fun OnboardingScreen(onDone: () -> Unit) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { step -= 1 }
+                    .clickable { vm.step -= 1 }
                     .padding(vertical = 8.dp, horizontal = 16.dp)
                     .padding(top = 10.dp)
             ) {
                 Text(
-                    text = "← BACK",
+                    text = stringResource(R.string.btn_back_arrow),
                     style = MaterialTheme.typography.labelSmall,
                     color = Spectrum.OnSurfaceDim,
                     letterSpacing = 1.6.sp

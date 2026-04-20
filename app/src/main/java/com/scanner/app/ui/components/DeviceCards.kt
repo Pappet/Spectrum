@@ -22,6 +22,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import com.scanner.app.R
 import com.scanner.app.data.*
 import com.scanner.app.ui.theme.ScannerAppTheme
 import com.scanner.app.util.SignalHelper
@@ -121,13 +123,13 @@ fun WifiNetworkCard(network: WifiNetwork) {
                         )
                         if (network.isConnected) {
                             Spacer(modifier = Modifier.width(8.dp))
-                            StatusChip("Verbunden", MaterialTheme.colorScheme.primary)
+                            StatusChip(stringResource(R.string.status_connected), MaterialTheme.colorScheme.primary)
                         }
                     }
                     Spacer(modifier = Modifier.height(2.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "${network.band} · Kanal ${network.channel}",
+                            text = stringResource(R.string.wifi_band_channel, network.band, network.channel),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -172,17 +174,17 @@ fun WifiNetworkCard(network: WifiNetwork) {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 DetailRow("BSSID", network.bssid)
-                network.vendor?.let { DetailRow("Hersteller", it) }
+                network.vendor?.let { DetailRow(stringResource(R.string.detail_vendor), it) }
                 network.wifiStandard?.let {
                     val bw = if (network.channelWidth != null) " (${network.channelWidth})" else ""
-                    DetailRow("WLAN Standard", "$it$bw")
+                    DetailRow(stringResource(R.string.detail_wifi_standard), "$it$bw")
                 }
-                DetailRow("Frequenz", "${network.frequency} MHz")
-                DetailRow("Signalqualität", SignalHelper.wifiQuality(network.signalStrength))
+                DetailRow(stringResource(R.string.detail_frequency), "${network.frequency} MHz")
+                DetailRow(stringResource(R.string.detail_signal_quality), stringResource(SignalHelper.wifiQualityResId(network.signalStrength)))
                 network.distance?.let {
-                    DetailRow("Distanz (Schätzung)", java.lang.String.format(java.util.Locale.getDefault(), "ca. %.1f m", it))
+                    DetailRow(stringResource(R.string.detail_distance_est), stringResource(R.string.detail_distance_format, it))
                 }
-                DetailRow("Sicherheit", network.securityType)
+                DetailRow(stringResource(R.string.detail_security), network.securityType)
             }
         }
     }
@@ -253,7 +255,7 @@ fun BluetoothDeviceCard(
                         )
                         if (device.isConnected) {
                             Spacer(modifier = Modifier.width(8.dp))
-                            StatusChip("Verbunden", MaterialTheme.colorScheme.primary)
+                            StatusChip(stringResource(R.string.status_connected), MaterialTheme.colorScheme.primary)
                         }
                     }
                     Spacer(modifier = Modifier.height(2.dp))
@@ -284,7 +286,7 @@ fun BluetoothDeviceCard(
                     if (device.bondState == BondState.BONDED) {
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Gekoppelt",
+                            text = stringResource(R.string.status_bonded),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -298,18 +300,18 @@ fun BluetoothDeviceCard(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                 Spacer(modifier = Modifier.height(12.dp))
 
-                DetailRow("MAC-Adresse", device.address)
-                device.vendor?.let { DetailRow("Hersteller", it) }
-                DetailRow("Typ", device.type.displayName())
-                device.deviceClass?.let { DetailRow("Geräteklasse", it) }
-                device.minorClass?.let { DetailRow("Geräteart", it) }
-                DetailRow("Kopplungsstatus", device.bondState.displayName())
+                DetailRow("MAC", device.address)
+                device.vendor?.let { DetailRow(stringResource(R.string.detail_vendor), it) }
+                DetailRow(stringResource(R.string.detail_type), device.type.displayName())
+                device.deviceClass?.let { DetailRow(stringResource(R.string.detail_device_class), it) }
+                device.minorClass?.let { DetailRow(stringResource(R.string.detail_device_minor_class), it) }
+                DetailRow(stringResource(R.string.detail_bond_state), device.bondState.displayName())
                 device.rssi?.let {
-                    DetailRow("Signalstärke", "${it} dBm (${SignalHelper.bluetoothQuality(it)})")
+                    DetailRow(stringResource(R.string.detail_signal_strength), "${it} dBm (${stringResource(SignalHelper.bluetoothQualityResId(it))})")
                 }
                 device.txPower?.let { DetailRow("TX Power", "$it dBm") }
                 if (device.serviceUuids.isNotEmpty()) {
-                    DetailRow("Services", "${device.serviceUuids.size} erkannt")
+                    DetailRow(stringResource(R.string.detail_services), stringResource(R.string.services_detected, device.serviceUuids.size))
                 }
 
                 // GATT Explorer button for BLE/DUAL devices
@@ -329,7 +331,7 @@ fun BluetoothDeviceCard(
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("GATT Explorer — Verbinden & Services lesen")
+                        Text(stringResource(R.string.btn_gatt_explorer))
                     }
                 }
             }

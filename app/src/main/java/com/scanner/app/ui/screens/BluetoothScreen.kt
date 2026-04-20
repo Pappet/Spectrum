@@ -45,14 +45,10 @@ import androidx.compose.material.icons.outlined.Watch
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,19 +59,21 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import com.scanner.app.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.scanner.app.data.BluetoothDevice
 import com.scanner.app.data.BondState
 import com.scanner.app.data.DeviceType
-import com.scanner.app.data.repository.DeviceRepository
 import com.scanner.app.ui.components.HairlineHorizontal
 import com.scanner.app.ui.components.HeaderStat
 import com.scanner.app.ui.components.SpectrumHeader
@@ -84,9 +82,7 @@ import com.scanner.app.ui.components.rssiColor
 import com.scanner.app.ui.theme.InterFamily
 import com.scanner.app.ui.theme.JetBrainsMonoFamily
 import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.util.BluetoothScanner
-import com.scanner.app.util.GattExplorer
-import kotlinx.coroutines.launch
+import com.scanner.app.ui.viewmodel.BluetoothViewModel
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -94,19 +90,11 @@ import kotlin.math.sin
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun BluetoothScreen() {
-    val context = LocalContext.current
-    val btScanner = remember { BluetoothScanner(context) }
-    val repository = remember { DeviceRepository(context) }
-    val gattExplorer = remember { GattExplorer(context) }
-    val scope = rememberCoroutineScope()
-
-    var devices by remember { mutableStateOf<List<BluetoothDevice>>(emptyList()) }
-    var isScanning by remember { mutableStateOf(false) }
-    var hasScanned by remember { mutableStateOf(false) }
-    var selectedAddress by remember { mutableStateOf<String?>(null) }
-    var gattAddress by remember { mutableStateOf<String?>(null) }
-    val gattState by gattExplorer.state.collectAsState()
+fun BluetoothScreen(vm: BluetoothViewModel = viewModel()) {
+    val devices = vm.devices
+    val isScanning = vm.isScanning
+    val hasScanned = vm.hasScanned
+    val gattState by vm.gattExplorer.state.collectAsState()
 
     val permissions = buildList {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -121,75 +109,44 @@ fun BluetoothScreen() {
     }
     val permissionState = rememberMultiplePermissionsState(permissions)
 
-    LaunchedEffect(gattState.connectionState, gattAddress) {
-        if (gattState.connectionState == com.scanner.app.util.ConnectionState.READY &&
-            gattAddress != null
-        ) {
+    LaunchedEffect(gattState.connectionState, vm.gattAddress) {
+        val addr = vm.gattAddress
+        if (gattState.connectionState == com.scanner.app.util.ConnectionState.READY && addr != null) {
             val json = buildGattJson(gattState)
-            repository.persistGattData(gattAddress!!, json)
+            vm.persistGattData(addr, json)
         }
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            btScanner.cleanup()
-            gattExplorer.disconnect()
-        }
-    }
-
-    fun doScan() {
-        if (!btScanner.isBluetoothEnabled()) return
-        if (!permissionState.allPermissionsGranted) return
-        isScanning = true
-        val startTime = System.currentTimeMillis()
-        btScanner.startScan(
-            onProgress = { results -> devices = results },
-            onComplete = { results ->
-                devices = results
-                isScanning = false
-                hasScanned = true
-                scope.launch {
-                    try {
-                        repository.persistBluetoothScan(
-                            devices = results,
-                            durationMs = System.currentTimeMillis() - startTime,
-                        )
-                    } catch (e: Exception) {
-                        android.util.Log.e("BluetoothScreen", "Error persisting scan", e)
-                    }
-                }
-            },
-        )
     }
 
     // GATT detail takes over the screen
-    if (gattAddress != null) {
+    if (vm.gattAddress != null) {
         GattDetailView(
             state = gattState,
-            onDisconnect = {
-                gattExplorer.disconnect()
-                gattAddress = null
-            },
+            onDisconnect = { vm.closeGatt() },
+            vm = vm
         )
         return
     }
 
     val bondedCount = devices.count { it.bondState == BondState.BONDED }
     val bleCount = devices.count { it.type == DeviceType.BLE || it.type == DeviceType.DUAL }
-    val selected = devices.firstOrNull { it.address == selectedAddress }
+    val selected = devices.firstOrNull { it.address == vm.selectedAddress }
+
+    val favorites by vm.repository.observeFavorites().collectAsState(initial = emptyList())
+    val favoriteAddresses = favorites.map { it.address }.toSet()
 
     Column(Modifier.fillMaxSize().background(Spectrum.Surface)) {
         SpectrumHeader(
             kicker = "BLUETOOTH",
-            subtitle = "Radar",
+            subtitle = stringResource(R.string.bt_radar_title),
             scanning = isScanning,
             onScan = {
                 if (!permissionState.allPermissionsGranted)
                     permissionState.launchMultiplePermissionRequest()
-                else doScan()
+                else if (permissionState.allPermissionsGranted) vm.scan()
             },
             stats = if (hasScanned) listOf(
-                HeaderStat(devices.size.toString(), "devices"),
-                HeaderStat(bondedCount.toString(), "bonded"),
+                HeaderStat(devices.size.toString(), stringResource(R.string.stat_devices)),
+                HeaderStat(bondedCount.toString(), stringResource(R.string.stat_bonded)),
                 HeaderStat(bleCount.toString(), "BLE"),
             ) else emptyList(),
         )
@@ -197,15 +154,15 @@ fun BluetoothScreen() {
         // Permission / disabled banners
         if (!permissionState.allPermissionsGranted) {
             BtBanner(
-                text = "Bluetooth- und Standort-Berechtigungen erforderlich",
+                text = stringResource(R.string.bt_perm_required),
                 color = Spectrum.Danger,
-                action = "ERLAUBEN",
+                action = stringResource(R.string.btn_allow),
                 onAction = { permissionState.launchMultiplePermissionRequest() },
             )
         }
-        if (!btScanner.isBluetoothEnabled()) {
+        if (!vm.isBluetoothEnabled()) {
             BtBanner(
-                text = "Bluetooth ist deaktiviert",
+                text = stringResource(R.string.bt_disabled),
                 color = Spectrum.Warning,
             )
         }
@@ -214,33 +171,28 @@ fun BluetoothScreen() {
             item {
                 BtRadar(
                     devices = devices,
-                    selectedAddress = selectedAddress,
+                    selectedAddress = vm.selectedAddress,
                     isScanning = isScanning,
-                    onSelect = { addr -> selectedAddress = addr },
+                    onSelect = { addr -> vm.selectedAddress = addr },
                 )
                 HairlineHorizontal()
             }
 
             if (selected != null) {
                 item {
-                    val favEntity by repository.observeDeviceByAddress(selected.address).collectAsState(initial = null)
+                    val favEntity by vm.repository.observeDeviceByAddress(selected.address).collectAsState(initial = null)
                     BtSelectedPanel(
                         device = selected,
                         isFavorite = favEntity?.isFavorite == true,
-                        onToggleFavorite = {
-                            scope.launch { repository.toggleFavoriteByAddress(selected.address) }
-                        },
-                        onClose = { selectedAddress = null },
-                        onOpenGatt = {
-                            gattAddress = selected.address
-                            gattExplorer.connect(selected.address)
-                        },
+                        onToggleFavorite = { vm.toggleFavorite(selected.address) },
+                        onClose = { vm.selectedAddress = null },
+                        onOpenGatt = { vm.openGatt(selected.address) },
                     )
                 }
             } else {
                 item {
                     Text(
-                        "NEARBY · ${devices.size}",
+                        stringResource(R.string.nearby_count, devices.size),
                         fontFamily = JetBrainsMonoFamily,
                         fontSize = 10.sp,
                         color = Spectrum.OnSurfaceDim,
@@ -250,15 +202,15 @@ fun BluetoothScreen() {
                 }
                 val sorted = devices.sortedByDescending { it.rssi ?: -120 }
                 items(sorted, key = { it.address }) { d ->
-                    BtListRow(device = d, onClick = { selectedAddress = d.address })
+                    BtListRow(device = d, isFavorite = d.address in favoriteAddresses, onClick = { vm.selectedAddress = d.address })
                     HairlineHorizontal()
                 }
             }
 
             if (devices.isEmpty() && !hasScanned) {
-                item { BtEmptyState("Tippe SCAN um Bluetooth-Geräte zu finden.") }
+                item { BtEmptyState(stringResource(R.string.empty_bt_scan_prompt)) }
             } else if (devices.isEmpty() && hasScanned) {
-                item { BtEmptyState("Keine Geräte gefunden.") }
+                item { BtEmptyState(stringResource(R.string.empty_no_devices)) }
             }
 
             item { Spacer(Modifier.height(24.dp)) }
@@ -442,8 +394,9 @@ private fun BtSelectedPanel(
             )
             Column(Modifier.weight(1f)) {
                 val isUnnamed = device.name == "(Unbekannt)" || device.name.isBlank()
+                val unknownVendor = stringResource(R.string.unknown_vendor)
                 Text(
-                    text = if (isUnnamed) "${device.vendor ?: "Unknown"} device" else device.name,
+                    text = if (isUnnamed) stringResource(R.string.device_with_vendor, device.vendor ?: unknownVendor) else device.name,
                     fontFamily = InterFamily,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Medium,
@@ -476,7 +429,7 @@ private fun BtSelectedPanel(
             ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Outlined.Star else Icons.Outlined.StarOutline,
-                    contentDescription = if (isFavorite) "Aus Favoriten entfernen" else "Als Favorit",
+                    contentDescription = if (isFavorite) stringResource(R.string.cd_remove_fav) else stringResource(R.string.cd_add_fav),
                     tint = if (isFavorite) Spectrum.Accent else Spectrum.OnSurface,
                     modifier = Modifier.size(14.dp),
                 )
@@ -491,7 +444,7 @@ private fun BtSelectedPanel(
             ) {
                 Icon(
                     Icons.Outlined.Close,
-                    contentDescription = "Schließen",
+                    contentDescription = stringResource(R.string.btn_close),
                     tint = Spectrum.OnSurfaceDim,
                     modifier = Modifier.size(14.dp),
                 )
@@ -530,7 +483,7 @@ private fun BtSelectedPanel(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                "EXPLORE GATT →",
+                stringResource(R.string.btn_explore_gatt),
                 fontFamily = JetBrainsMonoFamily,
                 fontSize = 11.sp,
                 letterSpacing = 0.2.em,
@@ -564,7 +517,7 @@ private fun InfoCell(label: String, value: String, modifier: Modifier = Modifier
 }
 
 @Composable
-private fun BtListRow(device: BluetoothDevice, onClick: () -> Unit) {
+private fun BtListRow(device: BluetoothDevice, isFavorite: Boolean, onClick: () -> Unit) {
     val isUnnamed = device.name == "(Unbekannt)" || device.name.isBlank()
     Row(
         Modifier
@@ -581,15 +534,25 @@ private fun BtListRow(device: BluetoothDevice, onClick: () -> Unit) {
             modifier = Modifier.size(18.dp),
         )
         Column(Modifier.weight(1f)) {
-            Text(
-                text = if (isUnnamed) (device.vendor ?: "—") else device.name,
-                fontFamily = InterFamily,
-                fontSize = 14.sp,
-                color = if (isUnnamed) Spectrum.OnSurfaceDim else Spectrum.OnSurface,
-                fontStyle = if (isUnnamed) FontStyle.Italic else FontStyle.Normal,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (isFavorite) {
+                    Icon(
+                        imageVector = Icons.Outlined.Star,
+                        contentDescription = stringResource(R.string.cd_favorite),
+                        tint = Spectrum.Accent,
+                        modifier = Modifier.size(12.dp)
+                    )
+                }
+                Text(
+                    text = if (isUnnamed) (device.vendor ?: "—") else device.name,
+                    fontFamily = InterFamily,
+                    fontSize = 14.sp,
+                    color = if (isUnnamed) Spectrum.OnSurfaceDim else Spectrum.OnSurface,
+                    fontStyle = if (isUnnamed) FontStyle.Italic else FontStyle.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             Text(
                 "${device.address} · ${device.type.displayName()}",
                 fontFamily = JetBrainsMonoFamily,
@@ -655,7 +618,7 @@ private fun BtEmptyState(message: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        SpectrumKicker("NO SIGNAL", color = Spectrum.OnSurfaceDim)
+        SpectrumKicker(stringResource(R.string.empty_no_signal), color = Spectrum.OnSurfaceDim)
         Text(
             message,
             color = Spectrum.OnSurfaceDim,

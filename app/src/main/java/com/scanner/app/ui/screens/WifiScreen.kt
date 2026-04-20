@@ -24,18 +24,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,11 +45,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.scanner.app.R
 import com.scanner.app.data.WifiNetwork
-import com.scanner.app.data.repository.DeviceRepository
 import com.scanner.app.ui.components.BlinkingDot
 import com.scanner.app.ui.components.HairlineHorizontal
 import com.scanner.app.ui.components.HeaderStat
@@ -63,8 +61,7 @@ import com.scanner.app.ui.components.SpectrumScanButton
 import com.scanner.app.ui.components.rssiColor
 import com.scanner.app.ui.theme.JetBrainsMonoFamily
 import com.scanner.app.ui.theme.Spectrum
-import com.scanner.app.util.WardrivingTracker
-import com.scanner.app.util.WifiScanner
+import com.scanner.app.ui.viewmodel.WifiViewModel
 import kotlinx.coroutines.launch
 
 private fun WifiNetwork.isRisk() =
@@ -74,21 +71,17 @@ private fun WifiNetwork.isRisk() =
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun WifiScreen() {
+fun WifiScreen(vm: WifiViewModel = viewModel()) {
     val context = LocalContext.current
-    val wifiScanner = remember { WifiScanner(context) }
-    val repository = remember { DeviceRepository(context) }
-    val wardrivingTracker = remember { WardrivingTracker(context) }
     val scope = rememberCoroutineScope()
 
-    var networks by remember { mutableStateOf<List<WifiNetwork>>(emptyList()) }
-    var isScanning by remember { mutableStateOf(false) }
-    var hasScanned by remember { mutableStateOf(false) }
-    var gpsEnabled by remember { mutableStateOf(false) }
-    var geoTagCount by remember { mutableStateOf(0) }
-    var uniqueGeoNetworks by remember { mutableStateOf(0) }
-    var filter by remember { mutableStateOf("all") }
-    var selectedNetwork by remember { mutableStateOf<WifiNetwork?>(null) }
+    val networks = vm.networks
+    val isScanning = vm.isScanning
+    val hasScanned = vm.hasScanned
+    val gpsEnabled = vm.gpsEnabled
+    val geoTagCount = vm.geoTagCount
+    val uniqueGeoNetworks = vm.uniqueGeoNetworks
+    val filter = vm.filter
 
     val permissions = buildList {
         add(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -98,39 +91,6 @@ fun WifiScreen() {
         }
     }
     val permissionState = rememberMultiplePermissionsState(permissions)
-
-    DisposableEffect(Unit) {
-        onDispose { wifiScanner.cleanup(); wardrivingTracker.cleanup() }
-    }
-
-    fun doScan() {
-        if (!wifiScanner.isWifiEnabled() || !permissionState.allPermissionsGranted) return
-        isScanning = true
-        val startTime = System.currentTimeMillis()
-        wifiScanner.startScan { results ->
-            networks = results.sortedByDescending { it.signalStrength }
-            isScanning = false
-            hasScanned = true
-            if (gpsEnabled) {
-                wardrivingTracker.recordNetworks(results)
-                geoTagCount = wardrivingTracker.getEntryCount()
-                uniqueGeoNetworks = wardrivingTracker.getUniqueNetworks()
-            }
-            try {
-                scope.launch {
-                    try {
-                        repository.persistWifiScan(
-                            networks = results,
-                            durationMs = System.currentTimeMillis() - startTime,
-                            location = if (gpsEnabled) wardrivingTracker.getCurrentLocation() else null,
-                        )
-                    } catch (e: Exception) {
-                        android.util.Log.e("WifiScreen", "Error persisting scan", e)
-                    }
-                }
-            } catch (_: Exception) {}
-        }
-    }
 
     val displayed = remember(networks, filter) {
         networks.filter { n ->
@@ -147,15 +107,16 @@ fun WifiScreen() {
     val count24     = remember(networks) { networks.count { it.band.contains("2.4") } }
     val count5      = remember(networks) { networks.count { it.band.contains("5") } }
 
-    selectedNetwork?.let { network ->
-        val favEntity by repository.observeDeviceByAddress(network.bssid).collectAsState(initial = null)
+    val favorites by vm.repository.observeFavorites().collectAsState(initial = emptyList())
+    val favoriteAddresses = favorites.map { it.address }.toSet()
+
+    vm.selectedNetwork?.let { network ->
+        val favEntity by vm.repository.observeDeviceByAddress(network.bssid).collectAsState(initial = null)
         WifiDetailScreen(
             network = network,
             isFavorite = favEntity?.isFavorite == true,
-            onClose = { selectedNetwork = null },
-            onToggleFavorite = {
-                scope.launch { repository.toggleFavoriteByAddress(network.bssid) }
-            },
+            onClose = { vm.selectedNetwork = null },
+            onToggleFavorite = { vm.toggleFavorite(network.bssid) },
         )
         return
     }
@@ -168,7 +129,7 @@ fun WifiScreen() {
             scanning = isScanning,
             onScan = {
                 if (!permissionState.allPermissionsGranted) permissionState.launchMultiplePermissionRequest()
-                else doScan()
+                else vm.scan()
             },
             stats = if (hasScanned) listOf(
                 HeaderStat(networks.size.toString(), "found"),
@@ -190,7 +151,7 @@ fun WifiScreen() {
         }
 
         // WiFi disabled banner
-        if (!wifiScanner.isWifiEnabled()) {
+        if (!vm.isWifiEnabled()) {
             WifiBanner(
                 text = stringResource(R.string.wifi_disabled_warn),
                 color = Spectrum.Warning,
@@ -205,10 +166,10 @@ fun WifiScreen() {
                 .padding(horizontal = 18.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            SpectrumFilterChip("ALL",    filter == "all",  { filter = "all" },  count = networks.size)
-            SpectrumFilterChip("2.4GHZ", filter == "2.4",  { filter = "2.4" },  count = count24)
-            SpectrumFilterChip("5GHZ",   filter == "5",    { filter = "5" },    count = count5)
-            SpectrumFilterChip("⚠ RISK", filter == "risk", { filter = "risk" }, count = riskCount)
+            SpectrumFilterChip("ALL",    filter == "all",  { vm.filter = "all" },  count = networks.size)
+            SpectrumFilterChip("2.4GHZ", filter == "2.4",  { vm.filter = "2.4" },  count = count24)
+            SpectrumFilterChip("5GHZ",   filter == "5",    { vm.filter = "5" },    count = count5)
+            SpectrumFilterChip("⚠ RISK", filter == "risk", { vm.filter = "risk" }, count = riskCount)
         }
         HairlineHorizontal()
 
@@ -217,17 +178,14 @@ fun WifiScreen() {
             gpsEnabled = gpsEnabled,
             geoTagCount = geoTagCount,
             uniqueGeoNetworks = uniqueGeoNetworks,
-            onToggle = { enabled ->
-                gpsEnabled = enabled
-                if (enabled) wardrivingTracker.startTracking() else wardrivingTracker.stopTracking()
-            },
+            onToggle = { enabled -> vm.toggleGps(enabled) },
             onExport = {
                 scope.launch {
                     try {
                         val csvFile = java.io.File(context.cacheDir, "wardriving.csv")
-                        wardrivingTracker.exportWigleCsv(csvFile)
+                        vm.wardrivingTracker.exportWigleCsv(csvFile)
                         val kmlFile = java.io.File(context.cacheDir, "wardriving.kml")
-                        wardrivingTracker.exportKml(kmlFile)
+                        vm.wardrivingTracker.exportKml(kmlFile)
                         val csvUri = androidx.core.content.FileProvider.getUriForFile(
                             context, "${context.packageName}.fileprovider", csvFile)
                         val kmlUri = androidx.core.content.FileProvider.getUriForFile(
@@ -252,7 +210,7 @@ fun WifiScreen() {
             displayed.isEmpty() && hasScanned -> WifiEmptyState(stringResource(R.string.wifi_none_found))
             else -> LazyColumn(Modifier.fillMaxSize()) {
                 items(displayed, key = { it.bssid }) { network ->
-                    WifiRow(network, onClick = { selectedNetwork = network })
+                    WifiRow(network, isFavorite = network.bssid in favoriteAddresses, onClick = { vm.selectedNetwork = network })
                     HairlineHorizontal()
                 }
                 item { Spacer(Modifier.height(24.dp)) }
@@ -369,7 +327,7 @@ private fun WifiEmptyState(message: String) {
 }
 
 @Composable
-private fun WifiRow(network: WifiNetwork, onClick: () -> Unit) {
+private fun WifiRow(network: WifiNetwork, isFavorite: Boolean, onClick: () -> Unit) {
     val risk = network.isRisk()
 
     Column {
@@ -407,6 +365,14 @@ private fun WifiRow(network: WifiNetwork, onClick: () -> Unit) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     if (network.isConnected) {
                         Box(Modifier.size(6.dp).clip(CircleShape).background(Spectrum.Accent))
+                    }
+                    if (isFavorite) {
+                        Icon(
+                            imageVector = Icons.Outlined.Star,
+                            contentDescription = "Favorit",
+                            tint = Spectrum.Accent,
+                            modifier = Modifier.size(12.dp)
+                        )
                     }
                     val isHidden = network.ssid.isBlank() || network.ssid == "(hidden)"
                     Text(
