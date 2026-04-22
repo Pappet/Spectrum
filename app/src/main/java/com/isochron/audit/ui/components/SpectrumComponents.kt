@@ -250,12 +250,14 @@ fun SpectrumBottomNav(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth().background(Spectrum.Surface)) {
         HairlineHorizontal()
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Spectrum.Surface),
+                .background(Spectrum.Surface)
+                .navigationBarsPadding()
+                .padding(bottom = 6.dp),
         ) {
             tabs.forEach { t ->
                 val isSel = t.key == selected
